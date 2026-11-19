@@ -54,6 +54,12 @@ def login(client, email: str = "user@example.com", password: str = PASSWORD):
     )
 
 
+def test_me_returns_current_user(client, auth_headers):
+    response = client.get("/api/v1/auth/me", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["email"] == "test-user@example.com"
+
+
 def test_login_returns_token(client):
     assert register(client).status_code == 201
 

@@ -43,6 +43,25 @@ def session_factory():
     engine.dispose()
 
 
+TEST_EMAIL = "test-user@example.com"
+TEST_PASSWORD = "parola12345"
+
+
+@pytest.fixture
+def auth_headers(client):
+    client.post(
+        "/api/v1/auth/register",
+        json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
+    )
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": TEST_EMAIL, "password": TEST_PASSWORD},
+    )
+    assert response.status_code == 200, response.text
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
 @pytest.fixture
 def client(session_factory):
     def override_get_db():
