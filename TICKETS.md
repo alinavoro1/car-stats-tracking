@@ -1217,7 +1217,7 @@ Verifică stocarea, sincronizarea și afișarea unui număr mare de puncte.
 
 ## SEC-02 --- HTTPS în producție
 
-**Prioritate:** P0 înainte de lansare · **Status:** In Progress
+**Prioritate:** P0 înainte de lansare · **Status:** Done
 
 **Criterii de acceptare:** - API-ul de producție folosește HTTPS. -
 Aplicația nu trimite tokenuri prin HTTP neprotejat.
@@ -1255,7 +1255,7 @@ motiv.
 
 ## DEP-01 --- Pregătirea backend-ului pentru producție
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 -   Configurare variabile de mediu.
 -   Configurare server.
@@ -1265,14 +1265,14 @@ motiv.
 
 ## DEP-02 --- Deployment backend
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 Alege furnizorul după estimarea costurilor, cerințelor și volumului de
 date.
 
 ## DEP-03 --- Configurarea bazei de date de producție
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 -   Acces limitat.
 -   Backup.
@@ -1281,7 +1281,7 @@ date.
 
 ## DEP-04 --- Build Android
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Build-ul release se generează. - Aplicația
 folosește URL-ul API de producție. - Permisiunile și notificarea de
@@ -1290,7 +1290,7 @@ tracking sunt configurate corect. - Semnarea aplicației este gestionată
 
 ## DEP-05 --- Documentația de instalare și utilizare
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 Documentează: - instalarea backend-ului; - configurarea bazei de date; -
 pornirea Flutter; - permisiunile Android; - pornirea și oprirea unei
