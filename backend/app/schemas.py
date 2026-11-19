@@ -110,6 +110,10 @@ class TripOut(BaseModel):
     total_duration_seconds: int
 
 
+class AdminTripOut(TripOut):
+    user_email: str
+
+
 class BatchResult(BaseModel):
     received: int
     inserted: int
