@@ -6,6 +6,7 @@ import 'api_client.dart';
 import 'auth_controller.dart';
 import 'database.dart';
 import 'screens/account_screen.dart';
+import 'screens/admin_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/history_screen.dart';
@@ -167,37 +168,52 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          DashboardScreen(controller: widget.controller),
-          HistoryScreen(controller: widget.controller),
-          AccountScreen(auth: widget.auth, controller: widget.controller),
-        ],
+    final user = widget.auth.user;
+    final isAdmin = user?.isAdmin ?? false;
+    final screens = [
+      DashboardScreen(controller: widget.controller),
+      HistoryScreen(controller: widget.controller),
+      if (isAdmin)
+        AdminScreen(
+          controller: widget.controller,
+          currentUserEmail: user!.email,
+        ),
+      AccountScreen(auth: widget.auth, controller: widget.controller),
+    ];
+    final destinations = [
+      const NavigationDestination(
+        icon: Icon(Icons.dashboard_outlined),
+        selectedIcon: Icon(Icons.dashboard),
+        label: 'Acasă',
       ),
+      const NavigationDestination(
+        icon: Icon(Icons.history_outlined),
+        selectedIcon: Icon(Icons.history),
+        label: 'Istoric',
+      ),
+      if (isAdmin)
+        const NavigationDestination(
+          icon: Icon(Icons.admin_panel_settings_outlined),
+          selectedIcon: Icon(Icons.admin_panel_settings),
+          label: 'Admin',
+        ),
+      const NavigationDestination(
+        icon: Icon(Icons.person_outline),
+        selectedIcon: Icon(Icons.person),
+        label: 'Cont',
+      ),
+    ];
+    final selectedIndex =
+        _selectedIndex < screens.length ? _selectedIndex : 0;
+
+    return Scaffold(
+      body: IndexedStack(index: selectedIndex, children: screens),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+        selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
           setState(() => _selectedIndex = index);
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Acasă',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'Istoric',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Cont',
-          ),
-        ],
+        destinations: destinations,
       ),
     );
   }
