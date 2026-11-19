@@ -1,6 +1,13 @@
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _authenticated_client(client, auth_headers):
+    client.headers.update(auth_headers)
+
 
 def now() -> datetime:
     return datetime.now(timezone.utc)

@@ -14,20 +14,9 @@ from app.schemas import (
     TripCreate,
     TripOut,
 )
+from app.security import get_current_user
 
 router = APIRouter(prefix="/trips", tags=["trips"])
-
-# Până la confirmarea REQ-01, aplicația are un singur utilizator implicit.
-DEFAULT_USER_EMAIL = "local@car-tracker.local"
-
-
-def get_default_user(db: Session) -> User:
-    user = db.scalar(select(User).where(User.email == DEFAULT_USER_EMAIL))
-    if user is None:
-        user = User(email=DEFAULT_USER_EMAIL)
-        db.add(user)
-        db.flush()
-    return user
 
 
 def get_trip_or_404(db: Session, trip_id: str) -> Trip:
@@ -45,7 +34,11 @@ def as_utc(value: datetime) -> datetime:
 
 
 @router.post("", response_model=TripOut, status_code=status.HTTP_201_CREATED)
-def create_trip(payload: TripCreate, db: Session = Depends(get_db)) -> Trip:
+def create_trip(
+    payload: TripCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Trip:
     trip_id = str(payload.id)
 
     # Retrimiterea aceleiași cereri (retry) nu creează o călătorie nouă.
@@ -53,7 +46,11 @@ def create_trip(payload: TripCreate, db: Session = Depends(get_db)) -> Trip:
     if existing is not None:
         return existing
 
-    active = db.scalar(select(Trip).where(Trip.status == "active"))
+    active = db.scalar(
+        select(Trip).where(
+            Trip.status == "active", Trip.user_id == current_user.id
+        )
+    )
     if active is not None:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
@@ -62,7 +59,7 @@ def create_trip(payload: TripCreate, db: Session = Depends(get_db)) -> Trip:
 
     trip = Trip(
         id=trip_id,
-        user_id=get_default_user(db).id,
+        user_id=current_user.id,
         started_at=payload.started_at,
         status="active",
     )
@@ -73,7 +70,11 @@ def create_trip(payload: TripCreate, db: Session = Depends(get_db)) -> Trip:
 
 
 @router.get("", response_model=list[TripOut])
-def list_trips(limit: int = 100, db: Session = Depends(get_db)) -> list[Trip]:
+def list_trips(
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[Trip]:
     limit = max(1, min(limit, 500))
     return list(
         db.scalars(select(Trip).order_by(Trip.started_at.desc()).limit(limit))
@@ -81,19 +82,30 @@ def list_trips(limit: int = 100, db: Session = Depends(get_db)) -> list[Trip]:
 
 
 @router.get("/{trip_id}", response_model=TripOut)
-def get_trip(trip_id: str, db: Session = Depends(get_db)) -> Trip:
+def get_trip(
+    trip_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Trip:
     return get_trip_or_404(db, trip_id)
 
 
 @router.get("/{trip_id}/points", response_model=list[GPSPointOut])
-def list_points(trip_id: str, db: Session = Depends(get_db)) -> list[GPSPoint]:
+def list_points(
+    trip_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[GPSPoint]:
     trip = get_trip_or_404(db, trip_id)
     return trip.points
 
 
 @router.post("/{trip_id}/points/batch", response_model=BatchResult)
 def add_points_batch(
-    trip_id: str, payload: GPSPointsBatchIn, db: Session = Depends(get_db)
+    trip_id: str,
+    payload: GPSPointsBatchIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> BatchResult:
     trip = get_trip_or_404(db, trip_id)
     if trip.status == "cancelled":
@@ -146,7 +158,10 @@ def add_points_batch(
 
 @router.post("/{trip_id}/complete", response_model=TripOut)
 def complete_trip(
-    trip_id: str, payload: TripComplete, db: Session = Depends(get_db)
+    trip_id: str,
+    payload: TripComplete,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Trip:
     trip = get_trip_or_404(db, trip_id)
 
@@ -178,7 +193,11 @@ def complete_trip(
 
 
 @router.delete("/{trip_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_trip(trip_id: str, db: Session = Depends(get_db)) -> Response:
+def delete_trip(
+    trip_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
     trip = get_trip_or_404(db, trip_id)
     db.delete(trip)
     db.commit()
