@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+psycopg://car_tracker:parola_locala@localhost:5432/car_tracker"
     )
+    # Obligatoriu: fără valoare implicită, ca să nu existe un secret în cod.
+    secret_key: str
+    access_token_expire_minutes: int = 60
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",
