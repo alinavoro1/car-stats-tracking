@@ -123,14 +123,19 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                 ),
               ],
               const SizedBox(height: 16),
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 1.9,
-                children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns = constraints.maxWidth >= 680 ? 3 : 2;
+                  return GridView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      mainAxisExtent: 112,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                    children: [
                   StatCard(
                     label: 'Distanță',
                     value: formatDistance(analysis.distanceMeters),
@@ -161,7 +166,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                     value: formatSpeed(analysis.maxSpeedMps),
                     icon: Icons.trending_up,
                   ),
-                ],
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 16),
               Text('Traseu', style: theme.textTheme.titleMedium),
