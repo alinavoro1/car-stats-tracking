@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import health, trips
+from app.routers import auth, health, trips
 
 app = FastAPI(
     title="Car Tracker API",
@@ -9,4 +9,5 @@ app = FastAPI(
 )
 
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(trips.router, prefix="/api/v1")
