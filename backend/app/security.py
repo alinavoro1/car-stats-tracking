@@ -87,3 +87,14 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+
+def require_admin(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.role != "admin":
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Acces permis doar administratorilor.",
+        )
+    return current_user

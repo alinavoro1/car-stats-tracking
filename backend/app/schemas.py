@@ -39,6 +39,7 @@ class UserOut(BaseModel):
 
     id: int
     email: str
+    role: Literal["user", "admin"]
 
 
 class TokenResponse(BaseModel):
