@@ -14,8 +14,10 @@ Potrivită dacă ai deja cont/credit de la hackathon.
 1. Intră pe <https://railway.app> și autentifică-te cu GitHub.
 2. **New Project → Deploy from GitHub repo** și alege repository-ul
    proiectului. Dacă repo-ul este privat, autorizează accesul.
-3. În serviciul creat, setează **Root Directory = `backend`**
-   (Settings → Source). Dockerfile-ul este `backend/Dockerfile`.
+3. Repository-ul conține un `Dockerfile` și un `railway.json` la
+   rădăcină, deci nu mai este nevoie să setezi Root Directory. Dacă
+   serviciul a fost creat deja cu Root Directory = `backend`, există și
+   `backend/Dockerfile` și funcționează la fel.
 4. Adaugă o bază de date: **New → Database → PostgreSQL**.
 5. În serviciul aplicației, adaugă variabilele:
    - `DATABASE_URL` = referința către PostgreSQL
