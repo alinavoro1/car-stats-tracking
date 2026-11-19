@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
 
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+STATIC_DIR = Path(__file__).resolve().parents[2] / "static"
 APK_PATH = STATIC_DIR / "car-tracker-test.apk"
 PAGE_PATH = STATIC_DIR / "download.html"
 
