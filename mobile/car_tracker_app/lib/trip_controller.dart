@@ -29,6 +29,7 @@ class TripController extends ChangeNotifier {
   TripController({
     required this.db,
     required this.api,
+    required this.ownerEmail,
     LocationService? locationService,
   }) : locationService = locationService ?? LocationService() {
     _connectivitySubscription =
@@ -42,6 +43,7 @@ class TripController extends ChangeNotifier {
 
   final AppDatabase db;
   final ApiClient api;
+  final String ownerEmail;
   final LocationService locationService;
 
   final _uuid = const Uuid();
@@ -88,7 +90,9 @@ class TripController extends ChangeNotifier {
       .toList();
 
   Future<void> initialize() async {
-    final active = await db.getActiveTrip();
+    // Călătoriile create înainte de autentificare aparțin primului cont.
+    await db.claimUnownedTrips(ownerEmail);
+    final active = await db.getActiveTrip(ownerEmail);
     if (active != null) {
       _activeTrip = active;
       _activePoints = await db.getPoints(active.id);
@@ -101,7 +105,7 @@ class TripController extends ChangeNotifier {
   }
 
   Future<void> refreshHistory() async {
-    final trips = await db.getTrips();
+    final trips = await db.getTrips(ownerEmail);
     _history = trips
         .where((trip) => trip.status != TripStatus.active)
         .toList(growable: false);
@@ -127,6 +131,7 @@ class TripController extends ChangeNotifier {
       final trip = Trip(
         id: _uuid.v4(),
         startedAt: DateTime.now().toUtc(),
+        ownerEmail: ownerEmail,
         status: TripStatus.active,
       );
       await db.insertTrip(trip);
@@ -394,7 +399,7 @@ class TripController extends ChangeNotifier {
     if (_syncAllInProgress) {
       return null;
     }
-    final pending = await db.getPendingSyncTrips();
+    final pending = await db.getPendingSyncTrips(ownerEmail);
     if (pending.isEmpty) {
       return null;
     }

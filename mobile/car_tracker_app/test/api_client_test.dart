@@ -128,4 +128,58 @@ void main() {
       throwsA(isA<ApiException>()),
     );
   });
+
+  test('login returnează tokenul și utilizatorul', () async {
+    final adapter = _RecordingAdapter(
+      body: jsonEncode({
+        'access_token': 'token-123',
+        'token_type': 'bearer',
+        'user': {'id': 7, 'email': 'admin@example.com', 'role': 'admin'},
+      }),
+    );
+
+    final session = await _clientWith(adapter).login(
+      'admin@example.com',
+      'parola12345',
+    );
+
+    expect(adapter.requests.single.path, '/auth/login');
+    expect(session.token, 'token-123');
+    expect(session.user.email, 'admin@example.com');
+    expect(session.user.isAdmin, isTrue);
+  });
+
+  test('register parsează utilizatorul creat', () async {
+    final adapter = _RecordingAdapter(
+      body: jsonEncode({
+        'id': 3,
+        'email': 'u@example.com',
+        'role': 'user',
+      }),
+    );
+
+    final user = await _clientWith(adapter).register(
+      'u@example.com',
+      'parola12345',
+    );
+
+    expect(adapter.requests.single.path, '/auth/register');
+    expect(user.email, 'u@example.com');
+    expect(user.isAdmin, isFalse);
+  });
+
+  test('tokenul este trimis ca Bearer', () async {
+    final adapter = _RecordingAdapter(
+      body: jsonEncode({'id': 1, 'email': 'a@example.com', 'role': 'user'}),
+    );
+    final api = _clientWith(adapter);
+    api.setToken('abc');
+
+    await api.fetchMe();
+
+    expect(
+      adapter.requests.single.headers['Authorization'],
+      'Bearer abc',
+    );
+  });
 }

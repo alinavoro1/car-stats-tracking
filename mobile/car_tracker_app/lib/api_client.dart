@@ -6,9 +6,10 @@ import 'config.dart';
 import 'models.dart';
 
 class ApiException implements Exception {
-  const ApiException(this.message);
+  const ApiException(this.message, {this.statusCode});
 
   final String message;
+  final int? statusCode;
 
   @override
   String toString() => message;
@@ -24,9 +25,37 @@ class ApiClient {
                 connectTimeout: const Duration(seconds: 10),
                 receiveTimeout: const Duration(seconds: 20),
               ),
-            );
+            ) {
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final token = _token;
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          handler.next(options);
+        },
+        onError: (error, handler) {
+          if (error.response?.statusCode == 401) {
+            onUnauthorized?.call();
+          }
+          handler.next(error);
+        },
+      ),
+    );
+  }
 
   final Dio _dio;
+  String? _token;
+
+  /// Apelat când serverul răspunde cu 401 (sesiune expirată).
+  void Function()? onUnauthorized;
+
+  void setToken(String? token) {
+    _token = token;
+  }
+
+  bool get hasToken => _token != null;
 
   Future<void> checkHealth() async {
     try {
@@ -37,8 +66,76 @@ class ApiClient {
       }
       throw const ApiException('Răspuns neașteptat de la server.');
     } on DioException catch (error) {
-      throw ApiException(_describeError(error));
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
     }
+  }
+
+  Future<AuthUser> register(String email, String password) async {
+    try {
+      final response = await _dio.post<Object>(
+        '/auth/register',
+        data: {'email': email, 'password': password},
+      );
+      return AuthUser.fromJson(
+        _jsonMap(response.data, 'Răspuns neașteptat la înregistrare.'),
+      );
+    } on DioException catch (error) {
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
+    }
+  }
+
+  Future<AuthSession> login(String email, String password) async {
+    try {
+      final response = await _dio.post<Object>(
+        '/auth/login',
+        data: {'email': email, 'password': password},
+      );
+      final data = _jsonMap(
+        response.data,
+        'Răspuns neașteptat la autentificare.',
+      );
+      final token = data['access_token'];
+      final user = data['user'];
+      if (token is! String || user is! Map) {
+        throw const ApiException('Răspuns neașteptat la autentificare.');
+      }
+      return AuthSession(
+        token: token,
+        user: AuthUser.fromJson(Map<String, dynamic>.from(user)),
+      );
+    } on DioException catch (error) {
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
+    }
+  }
+
+  Future<AuthUser> fetchMe() async {
+    try {
+      final response = await _dio.get<Object>('/auth/me');
+      return AuthUser.fromJson(
+        _jsonMap(response.data, 'Răspuns neașteptat de la server.'),
+      );
+    } on DioException catch (error) {
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
+    }
+  }
+
+  Map<String, dynamic> _jsonMap(Object? data, String message) {
+    if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+    throw ApiException(message);
   }
 
   /// Sincronizează o călătorie finalizată: metadate, puncte în loturi,
@@ -81,7 +178,10 @@ class ApiClient {
         },
       );
     } on DioException catch (error) {
-      throw ApiException(_describeError(error));
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
     }
   }
 
@@ -111,7 +211,7 @@ class ApiClient {
         final status = error.response?.statusCode;
         final data = error.response?.data;
         if (data is Map && data['detail'] is String) {
-          return 'Eroare $status: ${data['detail']}';
+          return data['detail'] as String;
         }
         return 'Serverul a răspuns cu eroarea $status.';
       case DioExceptionType.cancel:

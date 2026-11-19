@@ -22,12 +22,48 @@ enum SyncState {
       );
 }
 
+class AuthUser {
+  const AuthUser({
+    required this.id,
+    required this.email,
+    required this.role,
+  });
+
+  final int id;
+  final String email;
+  final String role;
+
+  bool get isAdmin => role == 'admin';
+
+  factory AuthUser.fromJson(Map<String, dynamic> json) {
+    return AuthUser(
+      id: (json['id'] as num).toInt(),
+      email: json['email'] as String,
+      role: json['role'] as String? ?? 'user',
+    );
+  }
+
+  Map<String, Object?> toJson() => {
+        'id': id,
+        'email': email,
+        'role': role,
+      };
+}
+
+class AuthSession {
+  const AuthSession({required this.token, required this.user});
+
+  final String token;
+  final AuthUser user;
+}
+
 /// Călătorie stocată local. Distanța este în metri, viteza în m/s.
 class Trip {
   const Trip({
     required this.id,
     required this.startedAt,
     required this.status,
+    this.ownerEmail = '',
     this.endedAt,
     this.distanceMeters = 0,
     this.averageSpeedMps = 0,
@@ -40,6 +76,7 @@ class Trip {
 
   final String id;
   final DateTime startedAt;
+  final String ownerEmail;
   final DateTime? endedAt;
   final TripStatus status;
   final double distanceMeters;
@@ -61,6 +98,7 @@ class Trip {
     return Trip(
       id: id,
       startedAt: startedAt,
+      ownerEmail: ownerEmail,
       endedAt: endedAt,
       status: TripStatus.completed,
       distanceMeters: distanceMeters,
@@ -76,6 +114,7 @@ class Trip {
     return Trip(
       id: id,
       startedAt: startedAt,
+      ownerEmail: ownerEmail,
       endedAt: endedAt ?? this.endedAt,
       status: newStatus,
       distanceMeters: distanceMeters,
@@ -92,6 +131,7 @@ class Trip {
     return Trip(
       id: id,
       startedAt: startedAt,
+      ownerEmail: ownerEmail,
       endedAt: endedAt,
       status: status,
       distanceMeters: distanceMeters,
@@ -108,6 +148,7 @@ class Trip {
     return Trip(
       id: map['id'] as String,
       startedAt: DateTime.parse(map['started_at'] as String).toUtc(),
+      ownerEmail: (map['owner_email'] as String?) ?? '',
       endedAt: map['ended_at'] == null
           ? null
           : DateTime.parse(map['ended_at'] as String).toUtc(),
@@ -115,10 +156,32 @@ class Trip {
       distanceMeters: (map['distance_meters'] as num).toDouble(),
       averageSpeedMps: (map['average_speed_mps'] as num).toDouble(),
       maxSpeedMps: (map['max_speed_mps'] as num).toDouble(),
-      movingDurationSeconds: map['moving_duration_seconds'] as int,
-      totalDurationSeconds: map['total_duration_seconds'] as int,
+      movingDurationSeconds:
+          (map['moving_duration_seconds'] as num).toInt(),
+      totalDurationSeconds:
+          (map['total_duration_seconds'] as num).toInt(),
       syncState: SyncState.fromDb(map['sync_state'] as String),
       syncError: map['sync_error'] as String?,
+    );
+  }
+
+  /// Călătorie venită din API-ul de administrare (include proprietarul).
+  factory Trip.fromApi(Map<String, dynamic> json) {
+    final endedAt = json['ended_at'] as String?;
+    return Trip(
+      id: json['id'] as String,
+      startedAt: DateTime.parse(json['started_at'] as String).toUtc(),
+      ownerEmail: (json['user_email'] as String?) ?? '',
+      endedAt: endedAt == null ? null : DateTime.parse(endedAt).toUtc(),
+      status: TripStatus.fromDb(json['status'] as String),
+      distanceMeters: (json['distance_meters'] as num).toDouble(),
+      averageSpeedMps: (json['average_speed_mps'] as num).toDouble(),
+      maxSpeedMps: (json['max_speed_mps'] as num).toDouble(),
+      movingDurationSeconds:
+          (json['moving_duration_seconds'] as num).toInt(),
+      totalDurationSeconds:
+          (json['total_duration_seconds'] as num).toInt(),
+      syncState: SyncState.synced,
     );
   }
 
@@ -126,6 +189,7 @@ class Trip {
     return {
       'id': id,
       'started_at': startedAt.toUtc().toIso8601String(),
+      'owner_email': ownerEmail,
       'ended_at': endedAt?.toUtc().toIso8601String(),
       'status': status.name,
       'distance_meters': distanceMeters,
@@ -164,6 +228,24 @@ class GpsPoint {
   final DateTime recordedAt;
   final int sequenceNumber;
   final bool isValid;
+
+  /// Punct venit din API-ul de administrare.
+  factory GpsPoint.fromApi(
+    Map<String, dynamic> json, {
+    required String tripId,
+  }) {
+    return GpsPoint(
+      id: json['id'] as String,
+      tripId: tripId,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      speedMps: (json['speed_mps'] as num?)?.toDouble(),
+      accuracyMeters: (json['accuracy_meters'] as num?)?.toDouble(),
+      altitudeMeters: (json['altitude_meters'] as num?)?.toDouble(),
+      recordedAt: DateTime.parse(json['recorded_at'] as String).toUtc(),
+      sequenceNumber: (json['sequence_number'] as num).toInt(),
+    );
+  }
 
   factory GpsPoint.fromMap(Map<String, Object?> map) {
     return GpsPoint(

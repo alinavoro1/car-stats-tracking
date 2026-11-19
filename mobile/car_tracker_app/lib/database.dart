@@ -14,11 +14,12 @@ class AppDatabase {
         path ?? p.join(await getDatabasesPath(), 'car_tracker.db');
     final db = await openDatabase(
       databasePath,
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: _createSchema,
+      onUpgrade: _upgradeSchema,
     );
     return AppDatabase._(db);
   }
@@ -28,6 +29,7 @@ class AppDatabase {
       CREATE TABLE trips (
         id TEXT PRIMARY KEY,
         started_at TEXT NOT NULL,
+        owner_email TEXT NOT NULL DEFAULT '',
         ended_at TEXT,
         status TEXT NOT NULL,
         distance_meters REAL NOT NULL DEFAULT 0,
@@ -56,6 +58,20 @@ class AppDatabase {
       )
     ''');
     await db.execute('CREATE INDEX idx_points_trip ON points(trip_id)');
+    await db.execute('CREATE INDEX idx_trips_owner ON trips(owner_email)');
+  }
+
+  static Future<void> _upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    if (oldVersion < 2) {
+      await db.execute(
+        "ALTER TABLE trips ADD COLUMN owner_email TEXT NOT NULL DEFAULT ''",
+      );
+      await db.execute('CREATE INDEX idx_trips_owner ON trips(owner_email)');
+    }
   }
 
   Future<void> insertTrip(Trip trip) async {
@@ -76,30 +92,49 @@ class AppDatabase {
     return rows.isEmpty ? null : Trip.fromMap(rows.first);
   }
 
-  Future<Trip?> getActiveTrip() async {
+  Future<Trip?> getActiveTrip(String ownerEmail) async {
     final rows = await _db.query(
       'trips',
-      where: 'status = ?',
-      whereArgs: [TripStatus.active.name],
+      where: 'status = ? AND owner_email = ?',
+      whereArgs: [TripStatus.active.name, ownerEmail],
       orderBy: 'started_at DESC',
       limit: 1,
     );
     return rows.isEmpty ? null : Trip.fromMap(rows.first);
   }
 
-  Future<List<Trip>> getTrips() async {
-    final rows = await _db.query('trips', orderBy: 'started_at DESC');
+  Future<List<Trip>> getTrips(String ownerEmail) async {
+    final rows = await _db.query(
+      'trips',
+      where: 'owner_email = ?',
+      whereArgs: [ownerEmail],
+      orderBy: 'started_at DESC',
+    );
     return rows.map(Trip.fromMap).toList();
   }
 
-  Future<List<Trip>> getPendingSyncTrips() async {
+  Future<List<Trip>> getPendingSyncTrips(String ownerEmail) async {
     final rows = await _db.query(
       'trips',
-      where: 'status = ? AND sync_state != ?',
-      whereArgs: [TripStatus.completed.name, SyncState.synced.name],
+      where: 'status = ? AND sync_state != ? AND owner_email = ?',
+      whereArgs: [
+        TripStatus.completed.name,
+        SyncState.synced.name,
+        ownerEmail,
+      ],
       orderBy: 'started_at ASC',
     );
     return rows.map(Trip.fromMap).toList();
+  }
+
+  /// Călătoriile create înainte de autentificare sunt atribuite primului
+  /// cont care se autentifică pe acest dispozitiv.
+  Future<void> claimUnownedTrips(String ownerEmail) async {
+    await _db.update(
+      'trips',
+      {'owner_email': ownerEmail},
+      where: "owner_email = ''",
+    );
   }
 
   Future<void> updateSyncState(
