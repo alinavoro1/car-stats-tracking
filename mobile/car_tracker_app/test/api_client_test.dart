@@ -168,6 +168,32 @@ void main() {
     expect(user.isAdmin, isFalse);
   });
 
+  test('fetchAdminTrips parsează călătoriile cu proprietar', () async {
+    final adapter = _RecordingAdapter(
+      body: jsonEncode([
+        {
+          'id': 'trip-9',
+          'started_at': '2026-01-01T12:00:00Z',
+          'ended_at': '2026-01-01T12:30:00Z',
+          'status': 'completed',
+          'distance_meters': 1234.0,
+          'average_speed_mps': 10.0,
+          'max_speed_mps': 20.0,
+          'moving_duration_seconds': 900,
+          'total_duration_seconds': 1800,
+          'user_email': 'other@example.com',
+        }
+      ]),
+    );
+
+    final trips = await _clientWith(adapter).fetchAdminTrips();
+
+    expect(adapter.requests.single.path, '/admin/trips');
+    expect(trips.single.id, 'trip-9');
+    expect(trips.single.ownerEmail, 'other@example.com');
+    expect(trips.single.status, TripStatus.completed);
+  });
+
   test('tokenul este trimis ca Bearer', () async {
     final adapter = _RecordingAdapter(
       body: jsonEncode({'id': 1, 'email': 'a@example.com', 'role': 'user'}),

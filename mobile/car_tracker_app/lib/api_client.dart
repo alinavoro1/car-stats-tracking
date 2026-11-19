@@ -185,6 +185,26 @@ class ApiClient {
     }
   }
 
+  /// ADMIN-02: toate călătoriile, pentru rolul admin.
+  Future<List<Trip>> fetchAdminTrips() async {
+    try {
+      final response = await _dio.get<Object>('/admin/trips');
+      final data = response.data;
+      if (data is! List) {
+        throw const ApiException('Răspuns neașteptat de la server.');
+      }
+      return data
+          .whereType<Map>()
+          .map((json) => Trip.fromApi(Map<String, dynamic>.from(json)))
+          .toList(growable: false);
+    } on DioException catch (error) {
+      throw ApiException(
+        _describeError(error),
+        statusCode: error.response?.statusCode,
+      );
+    }
+  }
+
   Map<String, Object?> _pointPayload(GpsPoint point) {
     return {
       'id': point.id,
