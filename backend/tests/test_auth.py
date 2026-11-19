@@ -1,4 +1,6 @@
+import pytest
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.models import User
 from app.security import decode_access_token, verify_password
@@ -19,6 +21,7 @@ def test_register_creates_user(client):
     assert response.status_code == 201
     body = response.json()
     assert body["email"] == "user@example.com"
+    assert body["role"] == "user"
     assert "password" not in body
     assert "password_hash" not in body
 
@@ -58,6 +61,14 @@ def test_me_returns_current_user(client, auth_headers):
     response = client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["email"] == "test-user@example.com"
+    assert response.json()["role"] == "user"
+
+
+def test_invalid_role_is_rejected_by_database(session_factory):
+    with session_factory() as db:
+        db.add(User(email="bad@example.com", role="superadmin"))
+        with pytest.raises(IntegrityError):
+            db.commit()
 
 
 def test_login_returns_token(client):
@@ -69,6 +80,7 @@ def test_login_returns_token(client):
     body = response.json()
     assert body["token_type"] == "bearer"
     assert body["user"]["email"] == "user@example.com"
+    assert body["user"]["role"] == "user"
     assert decode_access_token(body["access_token"]) == body["user"]["id"]
 
 
