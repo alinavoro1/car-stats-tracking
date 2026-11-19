@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car Tracker - testează aplicația</title>
+<style>
+  :root { color-scheme: light; --green:#2F6B3F; --bg:#f4f7f2; --text:#1b211c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  main { max-width:560px; margin:0 auto; padding:28px 20px 48px; }
+  .logo { width:88px; height:88px; border-radius:50%; background:#d9ecd9; display:flex; align-items:center; justify-content:center; margin:8px auto 16px; font-size:42px; }
+  h1 { text-align:center; font-size:28px; margin:0 0 6px; }
+  .sub { text-align:center; color:#555f58; margin:0 0 24px; }
+  .btn { display:block; text-align:center; background:var(--green); color:#fff; text-decoration:none; font-weight:700; font-size:19px; padding:18px 20px; border-radius:16px; box-shadow:0 8px 20px rgba(47,107,63,.25); }
+  .size { text-align:center; color:#667; font-size:13px; margin-top:8px; }
+  .card { background:#fff; border-radius:18px; padding:18px; margin-top:20px; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+  h2 { font-size:17px; margin:0 0 10px; }
+  ol, ul { margin:0; padding-left:20px; line-height:1.6; }
+  li { margin-bottom:8px; }
+  .warn { background:#fff6e5; border-left:4px solid #e0a800; padding:12px 14px; border-radius:10px; font-size:14px; line-height:1.5; margin-top:16px; }
+  footer { text-align:center; color:#889; font-size:12px; margin-top:24px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo">🚗</div>
+  <h1>Car Tracker</h1>
+  <p class="sub">Aplicație de test pentru înregistrarea călătoriilor cu mașina</p>
+
+  <a class="btn" href="/download/car-tracker-test.apk" download>⬇ Descarcă aplicația</a>
+  <div class="size">Android • 53 MB</div>
+
+  <div class="card">
+    <h2>Cum o instalezi</h2>
+    <ol>
+      <li>Deschide acest link în <b>Chrome</b> pe telefonul Android.</li>
+      <li>Apasă butonul verde și așteaptă descărcarea.</li>
+      <li>Deschide fișierul descărcat. Dacă Android te întreabă, permite instalarea din surse necunoscute pentru Chrome sau pentru aplicația Files.</li>
+      <li>Deschide aplicația <b>Car Tracker</b>.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Ce faci în aplicație</h2>
+    <ol>
+      <li>Apasă <b>„Nu ai cont? Înregistrează-te”</b> și creează un cont de test (email și parolă de minim 8 caractere).</li>
+      <li>Acceptă permisiunea de locație precisă și notificările.</li>
+      <li>Apasă <b>„Pornește călătoria”</b>, mișcă-te câteva minute, apoi <b>„Oprește călătoria”</b>.</li>
+      <li>Verifică <b>Istoric → călătoria → hartă și statistici</b>.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Ce să testezi</h2>
+    <ul>
+      <li>o călătorie scurtă, cu ecranul pornit;</li>
+      <li>o călătorie cu ecranul stins câteva minute;</li>
+      <li>modul avion în timpul călătoriei, apoi revenirea la internet;</li>
+      <li>oprirea forțată a aplicației în timpul unei călătorii și redeschiderea.</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    Serverul de test este găzduit în cloud. Dacă apare o eroare de conexiune, încearcă din nou peste câteva momente și anunță proprietarul.
+  </div>
+
+  <footer>Versiune de test • nu distribui linkul public</footer>
+</main>
+</body>
+</html>
