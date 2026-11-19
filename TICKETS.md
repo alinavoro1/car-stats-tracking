@@ -883,7 +883,7 @@ cronologic.
 
 ## UI-06 --- Ecran Settings/Profile
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Elemente propuse:** - Email și rolul contului. - Informații despre
 permisiuni. - Logout.
@@ -908,7 +908,7 @@ dimensiuni Android diferite. - Conținutul nu este tăiat.
 
 ## UI-09 --- Rafinarea vizuală a interfeței
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Descriere:** Temă unitară, carduri și spațiere consecvente, ecrane de
 autentificare și administrare coerente.
@@ -980,7 +980,7 @@ Călătoriile fără coordonate sunt tratate.
 
 ## AUTH-01 --- Înregistrarea utilizatorului
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Email-ul este validat și unic. - Parola
 este hash-uită, niciodată stocată în clar. - Email-ul duplicat este
@@ -988,7 +988,7 @@ respins cu un mesaj clar.
 
 ## AUTH-02 --- Autentificarea utilizatorului
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Credențialele corecte permit
 autentificarea. - Credențialele greșite sunt respinse. - Răspunsul nu
@@ -996,7 +996,7 @@ divulgă dacă email-ul sau parola este greșită.
 
 ## AUTH-03 --- JWT
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Tokenul are expirare. - Semnarea folosește
 un secret din configurație, fără valoare implicită în cod. -
@@ -1004,7 +1004,7 @@ Tokenurile invalide sau expirate sunt respinse cu 401.
 
 ## AUTH-04 --- Protejarea endpointurilor
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Endpointurile private cer autentificare
 (excepție: health, register, login). - Backend-ul identifică
@@ -1013,7 +1013,7 @@ client pentru autorizare.
 
 ## AUTH-05 --- Izolarea datelor utilizatorilor
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Utilizatorul A nu poate citi, modifica sau
 șterge călătoriile utilizatorului B. - Verificarea este realizată în
@@ -1022,7 +1022,7 @@ explicit doar prin endpointurile de administrare.
 
 ## AUTH-06 --- Stocarea tokenului în Flutter
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Tokenul este stocat cu
 `flutter_secure_storage`, nu în preferințe obișnuite. - Tokenul este
@@ -1030,7 +1030,7 @@ trimis prin HTTPS în producție. - Logout-ul elimină tokenul local.
 
 ## AUTH-07 --- Logout
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Sesiunea locală este închisă. - Datele
 locale nesincronizate nu sunt șterse accidental. - O călătorie activă
@@ -1039,7 +1039,7 @@ Comportamentul este documentat.
 
 ## AUTH-08 --- Roluri `user` și `admin`
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Rolul este stocat în baza de date și
 validat prin constrângere. - Rolul este citit din backend, nu din
@@ -1048,7 +1048,7 @@ administrative. - Rolul apare în răspunsul de autentificare.
 
 ## AUTH-09 --- Bootstrap pentru primul admin
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Primul cont înregistrat primește automat
 rolul `admin`. - Conturile următoare primesc rolul `user`. - Logica nu
@@ -1057,7 +1057,7 @@ documentat.
 
 ## AUTH-10 --- Ecranele de autentificare în Flutter
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Criterii de acceptare:** - Ecrane de login și înregistrare cu
 validare și stări loading/error. - Sesiunea este restaurată la pornire
@@ -1150,7 +1150,7 @@ Verifică răspunsuri valide, date invalide, lipsa resurselor și erori.
 
 ## TEST-04 --- Teste de autentificare și autorizare
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P1 · **Status:** Done
 
 Verifică accesul fără token, token expirat și accesul la datele altui
 utilizator.
@@ -1224,7 +1224,7 @@ Aplicația nu trimite tokenuri prin HTTP neprotejat.
 
 ## SEC-03 --- Protejarea datelor GPS
 
-**Prioritate:** P0 înainte de lansare · **Status:** Todo
+**Prioritate:** P0 înainte de lansare · **Status:** Done
 
 **Criterii de acceptare:** - Accesul la coordonate este limitat. -
 Backend-ul verifică proprietarul datelor. - Logurile nu includ
@@ -1302,7 +1302,7 @@ călătorii; - limitările tracking-ului; - procedura de sincronizare.
 
 ## ADMIN-01 --- Endpoint admin pentru toate călătoriile
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Endpointul este accesibil doar rolului
 `admin`; un utilizator normal primește 403. - Returnează călătoriile
@@ -1312,7 +1312,7 @@ accesul interzis.
 
 ## ADMIN-02 --- Ecranul Admin în Flutter
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Criterii de acceptare:** - Opțiunea Admin apare doar pentru rolul
 `admin`. - Lista arată toate călătoriile, cu proprietarul fiecăreia. -
@@ -1322,7 +1322,7 @@ la un utilizator normal.
 
 ## ADMIN-03 --- Detaliile unei călătorii din pagina admin
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Criterii de acceptare:** - Punctele GPS ale călătoriei selectate sunt
 încărcate din backend. - Statisticile și harta corespund călătoriei
