@@ -1,5 +1,10 @@
 import os
 
+# Testele nu depind de backend/.env.
+os.environ.setdefault(
+    "SECRET_KEY", "test-secret-key-long-enough-for-hs256-123456"
+)
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
