@@ -21,9 +21,30 @@ def test_register_creates_user(client):
     assert response.status_code == 201
     body = response.json()
     assert body["email"] == "user@example.com"
-    assert body["role"] == "user"
+    assert body["role"] == "admin"
     assert "password" not in body
     assert "password_hash" not in body
+
+
+def test_second_user_is_regular_user(client):
+    first = register(client, email="first@example.com")
+    second = register(client, email="second@example.com")
+
+    assert first.json()["role"] == "admin"
+    assert second.json()["role"] == "user"
+
+
+def test_legacy_user_without_password_does_not_block_admin(
+    client, session_factory
+):
+    with session_factory() as db:
+        db.add(User(email="legacy@car-tracker.local"))
+        db.commit()
+
+    response = register(client)
+
+    assert response.status_code == 201
+    assert response.json()["role"] == "admin"
 
 
 def test_email_is_normalized(client):
@@ -61,7 +82,7 @@ def test_me_returns_current_user(client, auth_headers):
     response = client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["email"] == "test-user@example.com"
-    assert response.json()["role"] == "user"
+    assert response.json()["role"] == "admin"
 
 
 def test_invalid_role_is_rejected_by_database(session_factory):
@@ -80,7 +101,7 @@ def test_login_returns_token(client):
     body = response.json()
     assert body["token_type"] == "bearer"
     assert body["user"]["email"] == "user@example.com"
-    assert body["user"]["role"] == "user"
+    assert body["user"]["role"] == "admin"
     assert decode_access_token(body["access_token"]) == body["user"]["id"]
 
 
