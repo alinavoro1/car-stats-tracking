@@ -3,16 +3,28 @@
 Acest document fixează regulile cerute de tichete (unități, filtrare,
 calcule, sincronizare) și limitele cunoscute.
 
-## 1. Utilizatori și autentificare
+## 1. Utilizatori, roluri și autentificare
 
-- REQ-01 și AUTH-01..07 sunt încă neconfirmate. MVP-ul folosește un
-  **singur utilizator implicit**, creat automat la prima călătorie
-  (`local@car-tracker.local`).
-- Nu există login, token sau izolare între utilizatori în această etapă.
-  Modelele păstrează `user_id` pentru a permite adăugarea autentificării
-  fără rescrierea schemei.
-- Nu folosi această configurație pentru mai mulți utilizatori în
-  producție.
+- Aplicația este multi-user, cu înregistrare liberă din aplicație.
+- Rolurile sunt `user` și `admin`, stocate în `users.role` și validate
+  printr-o constrângere în baza de date.
+- **Primul cont real** (cu parolă) creat devine automat `admin`.
+  Utilizatorii vechi fără parolă, rămași din etapa single-user, nu sunt
+  luați în calcul. Conturile următoare primesc rolul `user`.
+- Parolele sunt hash-uite cu bcrypt; nu sunt stocate sau returnate în
+  clar.
+- Autentificarea folosește JWT semnat cu `SECRET_KEY` din `.env` și
+  expiră după `ACCESS_TOKEN_EXPIRE_MINUTES` (implicit 60).
+- Tokenul este păstrat în `flutter_secure_storage`, nu în preferințe
+  obișnuite. La pornire, aplicația îl validează prin `/auth/me`; dacă nu
+  există internet, folosește datele cache-uite ale contului.
+- Fiecare utilizator vede doar propriile călătorii. Adminul vede
+  propriile călătorii ca orice utilizator și are o pagină separată cu
+  toate călătoriile.
+- La logout tokenul este șters, tracking-ul este oprit dacă rulează, iar
+  datele locale nesincronizate rămân pe dispozitiv.
+- Călătoriile locale create înainte de autentificare sunt atribuite
+  primului cont care se autentifică pe dispozitiv.
 
 ## 2. Unități și formule
 
@@ -112,11 +124,15 @@ active ──Stop──▶ completed ──▶ (sync)
 `trips`:
 
 ```text
-id TEXT PK, started_at TEXT (UTC ISO-8601), ended_at TEXT NULL,
-status TEXT, distance_meters REAL, average_speed_mps REAL,
-max_speed_mps REAL, moving_duration_seconds INTEGER,
-total_duration_seconds INTEGER, sync_state TEXT, sync_error TEXT
+id TEXT PK, started_at TEXT (UTC ISO-8601), owner_email TEXT,
+ended_at TEXT NULL, status TEXT, distance_meters REAL,
+average_speed_mps REAL, max_speed_mps REAL,
+moving_duration_seconds INTEGER, total_duration_seconds INTEGER,
+sync_state TEXT, sync_error TEXT
 ```
+
+Interogările locale filtrează după `owner_email`, astfel încât mai multe
+conturi de pe același dispozitiv să nu-și vadă reciproc călătoriile.
 
 `points`:
 
@@ -133,8 +149,12 @@ recuperată la pornire (TRIP-04, TRIP-06).
 
 ## 7. Sincronizarea (OFF-04..OFF-07)
 
+- Cererile private trimit `Authorization: Bearer <token>`; un token
+  lipsă, invalid sau expirat produce `401`.
 - ID-urile călătoriei și ale punctelor sunt UUID generate pe telefon,
   deci retrimiterea nu creează duplicate.
+- Serverul asociază călătoria cu utilizatorul din token, nu cu un
+  `user_id` trimis de client.
 - Ordinea cererilor: `POST /trips` → loturi de maximum 200 de puncte
   valide → `POST /trips/{id}/complete`.
 - Serverul ignoră punctele deja existente (după ID) și refuză
@@ -153,14 +173,22 @@ Toate rutele sunt sub `/api/v1`:
 
 | Metodă | Rută | Rol |
 |---|---|---|
-| GET | `/health` | verificare server |
-| POST | `/trips` | creare idempotentă după ID |
-| GET | `/trips` | listă, cele mai recente primele |
-| GET | `/trips/{id}` | metadate și statistici |
-| GET | `/trips/{id}/points` | punctele, ordonate după secvență |
+| GET | `/health` | verificare server (public) |
+| POST | `/auth/register` | creare cont (public) |
+| POST | `/auth/login` | token JWT (public) |
+| GET | `/auth/me` | contul curent |
+| POST | `/trips` | creare idempotentă după ID, pentru utilizatorul curent |
+| GET | `/trips` | doar călătoriile utilizatorului curent |
+| GET | `/trips/{id}` | metadate și statistici (doar proprietarul) |
+| GET | `/trips/{id}/points` | punctele (doar proprietarul) |
 | POST | `/trips/{id}/points/batch` | 1..500 puncte, idempotent |
 | POST | `/trips/{id}/complete` | finalizare idempotentă |
 | DELETE | `/trips/{id}` | ștergere cu punctele asociate |
+| GET | `/admin/trips` | toate călătoriile, doar pentru `admin` |
+| GET | `/admin/trips/{id}/points` | punctele oricărei călătorii, doar `admin` |
+
+Un utilizator normal primește `403` pe rutele `/admin/*`. Accesul la o
+călătorie a altui utilizator prin rutele normale returnează `404`.
 
 Backend-ul validează coordonatele, viteza, dimensiunea lotului și
 timestamp-urile (cu fus orar obligatoriu). Nu returnează stack trace-uri.
@@ -174,13 +202,27 @@ Documentația este generată automat la `/docs`.
   călătoriei rămân vizibile.
 - Se folosește un user agent identificabil, conform politicii OSM.
 
-## 10. Verificări efectuate
+## 10. Dezvoltare și hot reload
 
-- Backend: 12 teste API trec (SQLite pentru testele rapide). Rularea pe
-  PostgreSQL este necesară pentru paritate completă.
-- Mobil: `flutter analyze` fără probleme; 16 teste unitare trec;
+- Fiecare tichet se lucrează pe un branch separat și se merge în `main`
+  numai după ce testele relevante trec.
+- Pentru testarea pe tabletă prin USB, backend-ul rulează pe un port
+  liber (în mediul curent 8010) și se folosește:
+  `adb reverse tcp:8010 tcp:8010`.
+- `scripts/dev_hot_reload.ps1` pornește `flutter run` în fundal și
+  citește comenzi din `mobile/car_tracker_app/.hot_reload_cmd`
+  (`reload`, `restart`, `quit`). Modificările structurale de arbore de
+  widget-uri necesită `restart`, nu doar `reload`.
+
+## 11. Verificări efectuate
+
+- Backend: 49 teste trec pe SQLite și pe PostgreSQL, inclusiv
+  înregistrare, login, roluri, izolare între utilizatori, token expirat
+  și endpointurile de admin.
+- Mobil: `flutter analyze` fără probleme; 40 teste unitare trec;
   `flutter build apk --debug` produce APK-ul.
-- **Neverificat**: rulare pe telefon Android real sau emulator,
-  actualizări GPS cu ecranul stins, dialoguri de permisiuni, afișarea
-  tile-urilor de hartă în aplicație, consumul de baterie, executarea
-  migrațiilor pe PostgreSQL.
+- Pe tabletă: ecranul de login, permisiunea de locație, tracking-ul,
+  notificarea persistentă și baza SQLite locală au fost verificate.
+- **Neverificat**: înregistrarea și navigarea în pagina de admin pe
+  tabletă, tracking cu ecranul stins în mișcare, afișarea tile-urilor
+  de hartă, consumul de baterie, comportamentul pe alte versiuni Android.
