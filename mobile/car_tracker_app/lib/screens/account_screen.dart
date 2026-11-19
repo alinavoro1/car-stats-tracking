@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../auth_controller.dart';
 import '../trip_controller.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends StatefulWidget {
   const AccountScreen({
     super.key,
     required this.auth,
@@ -13,7 +14,69 @@ class AccountScreen extends StatelessWidget {
   final AuthController auth;
   final TripController controller;
 
-  Future<void> _logout(BuildContext context) async {
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen>
+    with WidgetsBindingObserver {
+  PermissionStatus? _locationAlwaysStatus;
+  PermissionStatus? _locationWhenInUseStatus;
+  PermissionStatus? _notificationStatus;
+  bool _loadingPermissions = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadPermissions();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Permisiunile pot fi schimbate în timp ce aplicația este în fundal.
+    if (state == AppLifecycleState.resumed) {
+      _loadPermissions();
+    }
+  }
+
+  Future<void> _loadPermissions() async {
+    if (!_loadingPermissions) {
+      setState(() => _loadingPermissions = true);
+    }
+    PermissionStatus? locationAlways;
+    PermissionStatus? locationWhenInUse;
+    PermissionStatus? notification;
+    try {
+      locationAlways = await Permission.locationAlways.status;
+      locationWhenInUse = await Permission.locationWhenInUse.status;
+      notification = await Permission.notification.status;
+    } catch (_) {
+      // Unele platforme (sau testele) nu oferă aceste informații.
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _locationAlwaysStatus = locationAlways;
+      _locationWhenInUseStatus = locationWhenInUse;
+      _notificationStatus = notification;
+      _loadingPermissions = false;
+    });
+  }
+
+  Future<void> _openAppSettings() async {
+    await widget.controller.openAppSettings();
+    await _loadPermissions();
+  }
+
+  Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -35,7 +98,74 @@ class AccountScreen extends StatelessWidget {
       ),
     );
     if (confirmed == true) {
-      await auth.logout();
+      await widget.auth.logout();
+    }
+  }
+
+  String get _locationLabel {
+    final always = _locationAlwaysStatus;
+    if (always == null) {
+      return 'Se verifică…';
+    }
+    if (always.isGranted) {
+      return 'Întotdeauna';
+    }
+    if (_locationWhenInUseStatus?.isGranted ?? false) {
+      return 'Doar în timpul utilizării';
+    }
+    return _statusLabel(always);
+  }
+
+  Color _locationColor(ColorScheme scheme) {
+    final always = _locationAlwaysStatus;
+    if (always == null) {
+      return scheme.onSurfaceVariant;
+    }
+    if (always.isGranted) {
+      return scheme.primary;
+    }
+    if (_locationWhenInUseStatus?.isGranted ?? false) {
+      return scheme.tertiary;
+    }
+    return _statusColor(always, scheme);
+  }
+
+  String get _notificationLabel => _notificationStatus == null
+      ? 'Se verifică…'
+      : _statusLabel(_notificationStatus!);
+
+  Color _notificationColor(ColorScheme scheme) => _notificationStatus == null
+      ? scheme.onSurfaceVariant
+      : _statusColor(_notificationStatus!, scheme);
+
+  String _statusLabel(PermissionStatus status) {
+    switch (status) {
+      case PermissionStatus.granted:
+        return 'Permisă';
+      case PermissionStatus.denied:
+        return 'Neacordată';
+      case PermissionStatus.permanentlyDenied:
+        return 'Refuzată permanent';
+      case PermissionStatus.restricted:
+        return 'Restricționată';
+      case PermissionStatus.limited:
+        return 'Acces limitat';
+      case PermissionStatus.provisional:
+        return 'Provizorie';
+    }
+  }
+
+  Color _statusColor(PermissionStatus status, ColorScheme scheme) {
+    switch (status) {
+      case PermissionStatus.granted:
+      case PermissionStatus.provisional:
+        return scheme.primary;
+      case PermissionStatus.restricted:
+      case PermissionStatus.limited:
+        return scheme.tertiary;
+      case PermissionStatus.denied:
+      case PermissionStatus.permanentlyDenied:
+        return scheme.error;
     }
   }
 
@@ -43,8 +173,8 @@ class AccountScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final user = auth.user;
-    final active = controller.activeTrip;
+    final user = widget.auth.user;
+    final active = widget.controller.activeTrip;
     final isAdmin = user?.isAdmin == true;
 
     return Scaffold(
@@ -163,12 +293,70 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 8, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.shield_outlined, color: scheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Permisiuni',
+                              style: theme.textTheme.titleMedium,
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'Actualizează',
+                            onPressed:
+                                _loadingPermissions ? null : _loadPermissions,
+                            icon: const Icon(Icons.refresh),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      _PermissionRow(
+                        icon: Icons.location_on_outlined,
+                        label: 'Locație',
+                        status: _locationLabel,
+                        color: _locationColor(scheme),
+                      ),
+                      const SizedBox(height: 8),
+                      _PermissionRow(
+                        icon: Icons.notifications_outlined,
+                        label: 'Notificări',
+                        status: _notificationLabel,
+                        color: _notificationColor(scheme),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Locația este necesară pentru înregistrarea '
+                        'călătoriilor, iar notificările pentru notificarea '
+                        'persistentă de urmărire.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _openAppSettings,
+                        icon: const Icon(Icons.settings_outlined),
+                        label: const Text('Deschide setările aplicației'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: scheme.error,
                 ),
-                onPressed: () => _logout(context),
+                onPressed: _logout,
                 icon: const Icon(Icons.logout),
                 label: const Text('Ieși din cont'),
               ),
@@ -176,6 +364,48 @@ class AccountScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PermissionRow extends StatelessWidget {
+  const _PermissionRow({
+    required this.icon,
+    required this.label,
+    required this.status,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String status;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 22, color: theme.colorScheme.onSurfaceVariant),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: 2),
+              Text(
+                status,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
