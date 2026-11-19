@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import User
-from app.schemas import RegisterRequest, UserOut
-from app.security import hash_password
+from app.schemas import LoginRequest, RegisterRequest, TokenResponse, UserOut
+from app.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -35,3 +35,23 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> User:
         )
     db.refresh(user)
     return user
+
+
+@router.post("/login", response_model=TokenResponse)
+def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+    email = str(payload.email).strip().lower()
+    user = db.scalar(select(User).where(User.email == email))
+
+    # Același mesaj pentru email inexistent și parolă greșită.
+    if user is None or not verify_password(payload.password, user.password_hash):
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED,
+            "Email sau parolă incorecte.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return TokenResponse(
+        access_token=create_access_token(user.id),
+        token_type="bearer",
+        user=UserOut.model_validate(user),
+    )

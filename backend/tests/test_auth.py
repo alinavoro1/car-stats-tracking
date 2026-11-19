@@ -1,9 +1,10 @@
 from sqlalchemy import select
 
 from app.models import User
-from app.security import verify_password
+from app.security import decode_access_token, verify_password
 
 REGISTER_URL = "/api/v1/auth/register"
+LOGIN_URL = "/api/v1/auth/login"
 PASSWORD = "parola12345"
 
 
@@ -45,6 +46,43 @@ def test_short_password_is_rejected(client):
 def test_password_over_72_bytes_is_rejected(client):
     # 40 de caractere multibyte depășesc limita de 72 de octeți.
     assert register(client, password="ă" * 40).status_code == 422
+
+
+def login(client, email: str = "user@example.com", password: str = PASSWORD):
+    return client.post(
+        LOGIN_URL, json={"email": email, "password": password}
+    )
+
+
+def test_login_returns_token(client):
+    assert register(client).status_code == 201
+
+    response = login(client)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["token_type"] == "bearer"
+    assert body["user"]["email"] == "user@example.com"
+    assert decode_access_token(body["access_token"]) == body["user"]["id"]
+
+
+def test_login_email_is_case_insensitive(client):
+    assert register(client).status_code == 201
+    assert login(client, email="USER@example.com").status_code == 200
+
+
+def test_login_with_wrong_password_is_rejected(client):
+    assert register(client).status_code == 201
+    response = login(client, password="parolagresita")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Email sau parolă incorecte."
+
+
+def test_login_with_unknown_email_has_same_message(client):
+    assert register(client).status_code == 201
+    response = login(client, email="unknown@example.com")
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Email sau parolă incorecte."
 
 
 def test_password_is_hashed_in_database(client, session_factory):

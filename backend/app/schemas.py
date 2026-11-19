@@ -29,11 +29,22 @@ class RegisterRequest(BaseModel):
         return value
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=1, max_length=MAX_PASSWORD_BYTES)
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     email: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
 
 
 class TripCreate(BaseModel):
