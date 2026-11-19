@@ -13,10 +13,14 @@ class TripDetailsScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.trip,
+    this.remote = false,
   });
 
   final TripController controller;
   final Trip trip;
+
+  /// Când este true, punctele se încarcă din endpointul de admin.
+  final bool remote;
 
   @override
   State<TripDetailsScreen> createState() => _TripDetailsScreenState();
@@ -32,7 +36,9 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
   }
 
   Future<_DetailsData> _load() async {
-    final points = await widget.controller.loadPoints(widget.trip.id);
+    final points = widget.remote
+        ? await widget.controller.api.fetchAdminTripPoints(widget.trip.id)
+        : await widget.controller.loadPoints(widget.trip.id);
     final analysis = analyzeTrip(
       points,
       startedAt: widget.trip.startedAt,
@@ -84,6 +90,17 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
                   ),
                 ),
               ),
+              if (widget.remote && trip.ownerEmail.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Card(
+                  margin: EdgeInsets.zero,
+                  child: ListTile(
+                    leading: const Icon(Icons.person_outline),
+                    title: const Text('Proprietar'),
+                    subtitle: Text(trip.ownerEmail),
+                  ),
+                ),
+              ],
               if (trip.status == TripStatus.cancelled) ...[
                 const SizedBox(height: 8),
                 Text(
