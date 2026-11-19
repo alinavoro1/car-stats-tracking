@@ -1,0 +1,24 @@
+databases:
+  - name: car-tracker-db
+    plan: free
+    databaseName: car_tracker
+    user: car_tracker
+
+services:
+  - type: web
+    name: car-tracker-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: car-tracker-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
