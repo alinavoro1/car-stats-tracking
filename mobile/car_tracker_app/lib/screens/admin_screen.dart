@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models.dart';
 import '../trip_controller.dart';
 import '../ui_format.dart';
+import 'trip_details_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({
@@ -148,6 +149,17 @@ class _AdminScreenState extends State<AdminScreen> {
                       visualDensity: VisualDensity.compact,
                       label: Text(_statusLabel(trip.status)),
                     ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => TripDetailsScreen(
+                            controller: widget.controller,
+                            trip: trip,
+                            remote: true,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

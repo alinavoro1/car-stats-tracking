@@ -194,6 +194,33 @@ void main() {
     expect(trips.single.status, TripStatus.completed);
   });
 
+  test('fetchAdminTripPoints parsează punctele', () async {
+    final adapter = _RecordingAdapter(
+      body: jsonEncode([
+        {
+          'id': 'p1',
+          'latitude': 44.0,
+          'longitude': 26.0,
+          'speed_mps': 10.0,
+          'accuracy_meters': 5.0,
+          'altitude_meters': 90.0,
+          'recorded_at': '2026-01-01T12:00:00Z',
+          'sequence_number': 0,
+        }
+      ]),
+    );
+
+    final points = await _clientWith(adapter)
+        .fetchAdminTripPoints('trip-9');
+
+    expect(
+      adapter.requests.single.path,
+      '/admin/trips/trip-9/points',
+    );
+    expect(points.single.tripId, 'trip-9');
+    expect(points.single.sequenceNumber, 0);
+  });
+
   test('tokenul este trimis ca Bearer', () async {
     final adapter = _RecordingAdapter(
       body: jsonEncode({'id': 1, 'email': 'a@example.com', 'role': 'user'}),
