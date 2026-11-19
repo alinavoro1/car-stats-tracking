@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'api_client.dart';
 import 'auth_controller.dart';
 import 'database.dart';
+import 'screens/account_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/history_screen.dart';
@@ -119,7 +120,7 @@ class _AuthenticatedHomeState extends State<_AuthenticatedHome> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeShell(controller: _controller);
+    return HomeShell(controller: _controller, auth: widget.auth);
   }
 }
 
@@ -148,9 +149,14 @@ class _SplashScreen extends StatelessWidget {
 }
 
 class HomeShell extends StatefulWidget {
-  const HomeShell({super.key, required this.controller});
+  const HomeShell({
+    super.key,
+    required this.controller,
+    required this.auth,
+  });
 
   final TripController controller;
+  final AuthController auth;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -167,6 +173,7 @@ class _HomeShellState extends State<HomeShell> {
         children: [
           DashboardScreen(controller: widget.controller),
           HistoryScreen(controller: widget.controller),
+          AccountScreen(auth: widget.auth, controller: widget.controller),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -184,6 +191,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.history_outlined),
             selectedIcon: Icon(Icons.history),
             label: 'Istoric',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Cont',
           ),
         ],
       ),
