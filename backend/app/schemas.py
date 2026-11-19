@@ -2,9 +2,10 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 MAX_BATCH_SIZE = 500
+MAX_PASSWORD_BYTES = 72  # limita bcrypt
 # 100 m/s (~360 km/h) este o limită superioară rezonabilă pentru o mașină.
 MAX_SPEED_MPS = 100.0
 
@@ -14,6 +15,25 @@ def to_utc(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("timestamp-ul trebuie să includă fusul orar (ISO 8601)")
     return value.astimezone(timezone.utc)
+
+
+class RegisterRequest(BaseModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=MAX_PASSWORD_BYTES)
+
+    @field_validator("password")
+    @classmethod
+    def password_fits_bcrypt(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > MAX_PASSWORD_BYTES:
+            raise ValueError("parola poate avea cel mult 72 de octeți")
+        return value
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
 
 
 class TripCreate(BaseModel):

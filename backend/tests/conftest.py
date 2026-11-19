@@ -22,7 +22,7 @@ IS_SQLITE = TEST_DATABASE_URL.startswith("sqlite")
 
 
 @pytest.fixture
-def client():
+def session_factory():
     engine = create_engine(
         TEST_DATABASE_URL,
         connect_args={"check_same_thread": False} if IS_SQLITE else {},
@@ -36,12 +36,17 @@ def client():
 
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
-    testing_session = sessionmaker(
-        bind=engine, autoflush=False, expire_on_commit=False
-    )
+    factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    yield factory
 
+    Base.metadata.drop_all(engine)
+    engine.dispose()
+
+
+@pytest.fixture
+def client(session_factory):
     def override_get_db():
-        db = testing_session()
+        db = session_factory()
         try:
             yield db
         finally:
@@ -52,5 +57,3 @@ def client():
         yield test_client
 
     app.dependency_overrides.clear()
-    Base.metadata.drop_all(engine)
-    engine.dispose()
