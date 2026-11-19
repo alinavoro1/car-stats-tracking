@@ -201,6 +201,14 @@ Documentația este generată automat la `/docs`.
 - Tile-urile necesită internet; dacă lipsesc, restul detaliilor
   călătoriei rămân vizibile.
 - Se folosește un user agent identificabil, conform politicii OSM.
+- În timpul călătoriei active, harta live afișează traseul punctelor
+  valide, poziția curentă, markerul de start și un buton de centrare.
+  Harta se actualizează doar când sosesc puncte noi; cronometrul are
+  propriul ciclu de reconstrucție.
+- În detaliile unei călătorii finalizate, startul și sosirea sunt
+  marcate distinct, folosind primul și ultimul punct valid.
+- Ecranul Cont afișează starea permisiunilor de locație și notificări
+  și oferă acces la setările aplicației.
 
 ## 10. Dezvoltare și hot reload
 
@@ -222,7 +230,12 @@ Documentația este generată automat la `/docs`.
 - Mobil: `flutter analyze` fără probleme; 40 teste unitare trec;
   `flutter build apk --debug` produce APK-ul.
 - Pe tabletă: ecranul de login, permisiunea de locație, tracking-ul,
-  notificarea persistentă și baza SQLite locală au fost verificate.
+  notificarea persistentă, baza SQLite locală și detaliile cu hartă au
+  fost verificate.
+- Harta live, marker-ele de start/poziție curentă și cardul de
+  permisiuni au fost implementate și trec analiza statică/testele, dar
+  nu au fost încă verificate vizual pe dispozitiv.
 - **Neverificat**: înregistrarea și navigarea în pagina de admin pe
-  tabletă, tracking cu ecranul stins în mișcare, afișarea tile-urilor
-  de hartă, consumul de baterie, comportamentul pe alte versiuni Android.
+  tabletă, tracking cu ecranul stins în mișcare, comportamentul offline,
+  recuperarea după oprirea forțată, consumul de baterie, comportamentul
+  pe alte versiuni Android.
