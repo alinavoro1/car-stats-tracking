@@ -267,7 +267,7 @@ tratate.
 
 ## GPS-04 --- Obținerea fluxului de poziții GPS
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Ascultă actualizările de locație pe durata unei sesiuni
 de tracking.
@@ -472,7 +472,7 @@ călătorie întreruptă poate fi recuperată sau închisă controlat.
 
 ## TRIP-02 --- Pornirea unei călătorii
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Verifică permisiunile GPS. 2. Verifică serviciul de
 localizare. 3. Verifică dacă există deja o călătorie activă. 4. Creează
@@ -486,7 +486,7 @@ utilizatorul primește un mesaj clar.
 
 ## TRIP-03 --- Oprirea unei călătorii
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Oprește colectarea GPS. 2. Înregistrează ora de finalizare.
 3. Calculează statisticile. 4. Marchează călătoria ca finalizată. 5.
@@ -510,7 +510,7 @@ continua sau opri sesiunea existentă.
 
 ## TRIP-05 --- Salvarea punctelor GPS în timpul călătoriei
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Punctele sunt asociate călătoriei active. -
 Sunt salvate timestamp-ul și metadatele disponibile. - Salvarea nu
@@ -871,7 +871,7 @@ călătorii este tratată. - Selectarea unei călătorii deschide detaliile.
 
 ## UI-05 --- Ecran Trip Details
 
-**Prioritate:** P1 · **Status:** In Progress
+**Prioritate:** P1 · **Status:** Done
 
 **Elemente propuse:** - Data și intervalul orar. - Distanța. - Durata. -
 Viteza medie. - Viteza maximă. - Traseul pe hartă, dacă este inclus în
@@ -925,7 +925,7 @@ animații.
 
 ## MAP-01 --- Alegerea și configurarea sursei de hartă
 
-**Prioritate:** P1 · **Status:** In Progress
+**Prioritate:** P1 · **Status:** Done
 
 **Propunere:** OpenStreetMap prin `flutter_map`.
 
@@ -935,7 +935,7 @@ necesare sunt configurate în siguranță.
 
 ## MAP-02 --- Afișarea hărții
 
-**Prioritate:** P1 · **Status:** In Progress
+**Prioritate:** P1 · **Status:** Done
 
 **Criterii de acceptare:** - Harta se încarcă. - Erorile de rețea sunt
 tratate. - Atribuirea sursei hărții este vizibilă.
@@ -1057,7 +1057,7 @@ documentat.
 
 ## AUTH-10 --- Ecranele de autentificare în Flutter
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Ecrane de login și înregistrare cu
 validare și stări loading/error. - Sesiunea este restaurată la pornire
@@ -1232,7 +1232,7 @@ coordonate sau tokenuri fără motiv.
 
 ## SEC-04 --- Informarea utilizatorului despre tracking
 
-**Prioritate:** P0 · **Status:** In Progress
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Utilizatorul știe când tracking-ul este
 activ. - Scopul permisiunii GPS este explicat. - Există o metodă clară
