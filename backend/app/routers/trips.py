@@ -19,9 +19,11 @@ from app.security import get_current_user
 router = APIRouter(prefix="/trips", tags=["trips"])
 
 
-def get_trip_or_404(db: Session, trip_id: str) -> Trip:
+def get_trip_for_user_or_404(
+    db: Session, trip_id: str, user_id: int
+) -> Trip:
     trip = db.get(Trip, trip_id)
-    if trip is None:
+    if trip is None or trip.user_id != user_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Călătoria nu există.")
     return trip
 
@@ -44,6 +46,11 @@ def create_trip(
     # Retrimiterea aceleiași cereri (retry) nu creează o călătorie nouă.
     existing = db.get(Trip, trip_id)
     if existing is not None:
+        if existing.user_id != current_user.id:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                "ID-ul călătoriei este deja folosit.",
+            )
         return existing
 
     active = db.scalar(
@@ -77,7 +84,12 @@ def list_trips(
 ) -> list[Trip]:
     limit = max(1, min(limit, 500))
     return list(
-        db.scalars(select(Trip).order_by(Trip.started_at.desc()).limit(limit))
+        db.scalars(
+            select(Trip)
+            .where(Trip.user_id == current_user.id)
+            .order_by(Trip.started_at.desc())
+            .limit(limit)
+        )
     )
 
 
@@ -87,7 +99,7 @@ def get_trip(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Trip:
-    return get_trip_or_404(db, trip_id)
+    return get_trip_for_user_or_404(db, trip_id, current_user.id)
 
 
 @router.get("/{trip_id}/points", response_model=list[GPSPointOut])
@@ -96,7 +108,7 @@ def list_points(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[GPSPoint]:
-    trip = get_trip_or_404(db, trip_id)
+    trip = get_trip_for_user_or_404(db, trip_id, current_user.id)
     return trip.points
 
 
@@ -107,7 +119,7 @@ def add_points_batch(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> BatchResult:
-    trip = get_trip_or_404(db, trip_id)
+    trip = get_trip_for_user_or_404(db, trip_id, current_user.id)
     if trip.status == "cancelled":
         raise HTTPException(
             status.HTTP_409_CONFLICT,
@@ -163,7 +175,7 @@ def complete_trip(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Trip:
-    trip = get_trip_or_404(db, trip_id)
+    trip = get_trip_for_user_or_404(db, trip_id, current_user.id)
 
     if trip.status == "cancelled":
         raise HTTPException(
@@ -198,7 +210,7 @@ def delete_trip(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Response:
-    trip = get_trip_or_404(db, trip_id)
+    trip = get_trip_for_user_or_404(db, trip_id, current_user.id)
     db.delete(trip)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
