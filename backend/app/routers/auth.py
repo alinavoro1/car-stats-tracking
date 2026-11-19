@@ -28,7 +28,19 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> User:
             "Există deja un cont cu acest email.",
         )
 
-    user = User(email=email, password_hash=hash_password(payload.password))
+    # Primul cont real (cu parolă) devine admin. Utilizatorii vechi fără
+    # parolă, rămași din etapa single-user, nu contează.
+    first_account = (
+        db.scalar(
+            select(User.id).where(User.password_hash.is_not(None)).limit(1)
+        )
+        is None
+    )
+    user = User(
+        email=email,
+        password_hash=hash_password(payload.password),
+        role="admin" if first_account else "user",
+    )
     db.add(user)
     try:
         db.commit()
