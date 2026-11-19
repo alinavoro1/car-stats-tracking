@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../trip_controller.dart';
 import '../ui_format.dart';
+import '../widgets/live_trip_map.dart';
 
 class ActiveTripScreen extends StatefulWidget {
   const ActiveTripScreen({super.key, required this.controller});
@@ -15,24 +16,7 @@ class ActiveTripScreen extends StatefulWidget {
 }
 
 class _ActiveTripScreenState extends State<ActiveTripScreen> {
-  Timer? _clock;
   bool _stopping = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _clock = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _clock?.cancel();
-    super.dispose();
-  }
 
   Future<void> _stopTrip() async {
     final confirmed = await _confirm(
@@ -129,7 +113,6 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           );
         }
 
-        final elapsed = DateTime.now().difference(trip.startedAt);
         final analysis = widget.controller.liveAnalysis;
         final validPoints = analysis?.validPoints ?? const [];
         final lastPoint = validPoints.isEmpty ? null : validPoints.last;
@@ -266,26 +249,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  Column(
-                    children: [
-                      Text(
-                        formatClock(elapsed),
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                          fontFeatures: const [
-                            FontFeature.tabularFigures(),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        'durata călătoriei',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _ElapsedClock(startedAt: trip.startedAt),
                   const SizedBox(height: 24),
                   Card(
                     child: Padding(
@@ -339,6 +303,10 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  Text('Traseu live', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  LiveTripMap(points: validPoints),
                   const SizedBox(height: 24),
                   FilledButton.icon(
                     onPressed: _stopping ? null : _stopTrip,
@@ -372,6 +340,59 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+class _ElapsedClock extends StatefulWidget {
+  const _ElapsedClock({required this.startedAt});
+
+  final DateTime startedAt;
+
+  @override
+  State<_ElapsedClock> createState() => _ElapsedClockState();
+}
+
+class _ElapsedClockState extends State<_ElapsedClock> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final elapsed = DateTime.now().difference(widget.startedAt);
+    return Column(
+      children: [
+        Text(
+          formatClock(elapsed),
+          style: theme.textTheme.displaySmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+        Text(
+          'durata călătoriei',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }
