@@ -1,0 +1,48 @@
+# ---- Secrets / configuration -------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---- Python ------------------------------------------------------------------
+backend/.venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+backend/*.db
+backend/*.db-journal
+
+# ---- Flutter / Dart ----------------------------------------------------------
+mobile/car_tracker_app/.dart_tool/
+mobile/car_tracker_app/build/
+mobile/car_tracker_app/.flutter-plugins
+mobile/car_tracker_app/.flutter-plugins-dependencies
+mobile/car_tracker_app/.packages
+mobile/car_tracker_app/android/local.properties
+mobile/car_tracker_app/android/.gradle/
+mobile/car_tracker_app/android/app/debug/
+mobile/car_tracker_app/android/app/profile/
+mobile/car_tracker_app/android/app/release/
+mobile/car_tracker_app/ios/
+mobile/car_tracker_app/linux/
+mobile/car_tracker_app/macos/
+mobile/car_tracker_app/windows/
+mobile/car_tracker_app/web/
+
+# ---- Android signing ---------------------------------------------------------
+*.jks
+*.keystore
+key.properties
+
+# ---- IDE / OS ----------------------------------------------------------------
+.idea/
+.vscode/
+*.iml
+*.swp
+.DS_Store
+Thumbs.db

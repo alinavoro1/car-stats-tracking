@@ -39,19 +39,21 @@ prematură.
 
 ## REQ-01 --- Confirmarea utilizatorilor aplicației
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
-**Descriere:** Clarifică dacă aplicația este folosită de o singură
-persoană, de mai mulți utilizatori individuali sau de o companie care
-urmărește mai mulți șoferi.
+**Descriere:** Cerință confirmată: aplicația este multi-utilizator, cu
+înregistrare liberă din aplicație.
 
-**De clarificat:** - Un utilizator are acces doar la propriile
-călătorii? - Există administrator? - Un administrator poate vedea
-traseele altor utilizatori? - Este necesar un panou web?
+**Decizii confirmate:** - Fiecare utilizator vede doar propriile
+călătorii. - Există rolurile `user` și `admin`. - Primul cont
+înregistrat primește automat rolul `admin`. - Adminul vede propriile
+călătorii ca un utilizator normal și are o pagină separată cu toate
+călătoriile, etichetate cu proprietarul. - Nu este necesar un panou web
+în această etapă.
 
-**Criterii de acceptare:** - Tipurile de utilizatori sunt documentate. -
-Regulile de acces la date sunt stabilite. - Dacă este doar un
-utilizator, autentificarea și rolurile nu sunt complicate inutil.
+**Criterii de acceptare:** - Tipurile de utilizatori și rolurile sunt
+documentate. - Regulile de acces la date sunt stabilite. - Izolarea
+datelor este verificată în backend, nu doar în aplicație.
 
 ## REQ-02 --- Confirmarea platformei
 
@@ -124,7 +126,7 @@ Este necesară exportarea datelor?
 
 ## SET-01 --- Crearea repository-ului
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Creează repository-ul Git pentru proiect.
 
@@ -138,7 +140,7 @@ proiectului și tehnologiile.
 
 ## SET-02 --- Crearea structurii frontend/backend
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Structură propusă:**
 
@@ -158,7 +160,7 @@ Fiecare poate fi pornit independent. - Documentația este în repository.
 
 ## SET-03 --- Crearea proiectului Flutter
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Creează proiectul Flutter în `mobile/car_tracker_app`. 2.
 Verifică `flutter doctor`. 3. Configurează Android SDK. 4. Rulează
@@ -170,7 +172,7 @@ există erori de configurare. - Proiectul este versionat.
 
 ## SET-04 --- Inițializarea backend-ului FastAPI
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Creează mediul virtual Python. 2. Instalează FastAPI și
 Uvicorn. 3. Creează entry point-ul aplicației. 4. Adaugă un endpoint
@@ -182,7 +184,7 @@ disponibilă.
 
 ## SET-05 --- Configurarea dependențelor backend
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Adaugă doar bibliotecile necesare: SQLAlchemy, Alembic,
 driver PostgreSQL, Pydantic Settings, Pytest și HTTPX când sunt
@@ -194,7 +196,7 @@ reproductibile. - Există un fișier de dependențe (`requirements.txt` sau
 
 ## SET-06 --- Configurarea variabilelor de mediu
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Variabile inițiale propuse:** - `DATABASE_URL` - `SECRET_KEY` (când se
 implementează autentificarea) - `ACCESS_TOKEN_EXPIRE_MINUTES` (când se
@@ -206,7 +208,7 @@ secrete reale.
 
 ## SET-07 --- Conectarea Flutter la FastAPI
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Configurează clientul HTTP în Flutter. 2. Adaugă un
 endpoint de test în backend. 3. Apelează endpoint-ul din aplicație. 4.
@@ -227,7 +229,7 @@ este duplicat în mai multe fișiere.
 
 ## GPS-01 --- Verificarea disponibilității serviciului de localizare
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** Verifică dacă serviciile de localizare ale telefonului
 sunt activate.
@@ -238,7 +240,7 @@ locația ar funcționa.
 
 ## GPS-02 --- Solicitarea permisiunii de localizare
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** Solicită permisiunea de localizare numai când
 utilizatorul încearcă să folosească tracking-ul.
@@ -254,7 +256,7 @@ utilizatorului instrucțiuni când trebuie să modifice setările.
 
 ## GPS-03 --- Obținerea poziției curente
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Date urmărite:** - Latitudine. - Longitudine. - Timestamp. -
 Acuratețe. - Viteză, dacă este disponibilă. - Altitudine, opțional.
@@ -265,7 +267,7 @@ tratate.
 
 ## GPS-04 --- Obținerea fluxului de poziții GPS
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** Ascultă actualizările de locație pe durata unei sesiuni
 de tracking.
@@ -276,7 +278,7 @@ mai multe subscription-uri accidental.
 
 ## GPS-05 --- Înregistrarea vitezei GPS
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Citește viteza furnizată de sistemul de localizare și
 gestionează cazurile în care aceasta lipsește.
@@ -287,7 +289,7 @@ Conversia în km/h este corectă.
 
 ## GPS-06 --- Stabilirea intervalului de colectare
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** Alege un interval/distanță de actualizare potrivit pentru
 o călătorie cu mașina.
@@ -298,7 +300,7 @@ Se testează efectul asupra traseului și bateriei.
 
 ## GPS-07 --- Filtrarea punctelor GPS
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Identifică punctele care nu ar trebui folosite la
 calculul distanței.
@@ -338,7 +340,7 @@ documentate.
 
 ## GPS-10 --- Alegerea soluției finale pentru background tracking
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** După testul inițial, decide dacă soluția bazată pe
 pluginul GPS este suficientă sau dacă este necesar un plugin/serviciu
@@ -355,7 +357,7 @@ limitările și eventualele costuri/licențe. - Decizia este documentată
 
 ## DB-01 --- Configurarea PostgreSQL
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Pași:** 1. Creează baza de date locală. 2. Creează utilizatorul bazei
 de date. 3. Configurează conexiunea în backend. 4. Testează conectarea.
@@ -365,7 +367,7 @@ Credențialele nu sunt în cod.
 
 ## DB-02 --- Configurarea SQLAlchemy
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Configurează engine-ul, sesiunea și baza declarativă
 SQLAlchemy.
@@ -375,7 +377,7 @@ Sesiunile sunt închise corect. - Configurația nu este duplicată.
 
 ## DB-03 --- Modelul User
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Câmpuri propuse:** id, email, password_hash, created_at.
 
@@ -397,7 +399,7 @@ administrarea vehiculelor.
 
 ## DB-05 --- Modelul Trip
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Câmpuri propuse:** - id - user_id - vehicle_id (nullable/opțional) -
 started_at - ended_at (nullable) - status - distance_meters -
@@ -410,7 +412,7 @@ Unitățile sunt documentate.
 
 ## DB-06 --- Modelul GPSPoint
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Câmpuri propuse:** - id - trip_id - latitude - longitude - speed
 (nullable) - accuracy (nullable) - altitude (nullable) - recorded_at -
@@ -422,7 +424,7 @@ metodă de identificare a punctelor duplicate la sincronizare.
 
 ## DB-07 --- Relațiile dintre modele
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Relații propuse:** - User → Trips: one-to-many. - User → Vehicles:
 one-to-many, dacă vehiculele sunt incluse. - Vehicle → Trips:
@@ -435,7 +437,7 @@ ales explicit.
 
 ## DB-08 --- Configurarea Alembic
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Alembic este configurat cu metadata
 modelelor. - Migrațiile pot fi generate și aplicate. - Baza de date
@@ -443,7 +445,7 @@ poate fi actualizată reproductibil.
 
 ## DB-09 --- Indexuri și constrângeri
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Propuneri:** - Index pe `trip_id` în GPSPoint. - Index pe `user_id` în
 Trip. - Index pe `recorded_at` dacă interogările o justifică. -
@@ -459,7 +461,7 @@ indexuri inutile.
 
 ## TRIP-01 --- Definirea stărilor unei călătorii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Stări propuse:** `active`, `completed`, `cancelled`, eventual
 `interrupted`.
@@ -470,7 +472,7 @@ călătorie întreruptă poate fi recuperată sau închisă controlat.
 
 ## TRIP-02 --- Pornirea unei călătorii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Pași:** 1. Verifică permisiunile GPS. 2. Verifică serviciul de
 localizare. 3. Verifică dacă există deja o călătorie activă. 4. Creează
@@ -484,7 +486,7 @@ utilizatorul primește un mesaj clar.
 
 ## TRIP-03 --- Oprirea unei călătorii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Pași:** 1. Oprește colectarea GPS. 2. Înregistrează ora de finalizare.
 3. Calculează statisticile. 4. Marchează călătoria ca finalizată. 5.
@@ -497,7 +499,7 @@ colectate.
 
 ## TRIP-04 --- Verificarea călătoriei active
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** La deschiderea aplicației, verifică dacă există o
 călătorie activă.
@@ -508,7 +510,7 @@ continua sau opri sesiunea existentă.
 
 ## TRIP-05 --- Salvarea punctelor GPS în timpul călătoriei
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Criterii de acceptare:** - Punctele sunt asociate călătoriei active. -
 Sunt salvate timestamp-ul și metadatele disponibile. - Salvarea nu
@@ -516,7 +518,7 @@ depinde de internet. - Erorile de scriere sunt tratate.
 
 ## TRIP-06 --- Recuperarea unei călătorii întrerupte
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Descriere:** Gestionează situația în care aplicația este închisă
 neașteptat sau procesul este oprit de sistem.
@@ -529,7 +531,7 @@ nu a funcționat.
 
 ## TRIP-07 --- Anularea unei călătorii
 
-**Prioritate:** P2 · **Status:** Todo
+**Prioritate:** P2 · **Status:** In Progress
 
 **Descriere:** Permite anularea unei călătorii pornite accidental.
 
@@ -540,7 +542,7 @@ acest lucru.
 
 ## TRIP-08 --- Gestionarea unei singure călătorii active
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Aplicația previne pornirea unei a doua
 călătorii active. - Backend-ul verifică aceeași regulă dacă există
@@ -553,7 +555,7 @@ active duplicate.
 
 ## STAT-01 --- Implementarea calculului Haversine
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Calculează distanța în metri dintre două coordonate GPS
 consecutive.
@@ -565,7 +567,7 @@ zero.
 
 ## STAT-02 --- Calcularea distanței totale
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Adună distanțele dintre punctele consecutive acceptate.
 
@@ -576,7 +578,7 @@ corectă.
 
 ## STAT-03 --- Calcularea duratei totale
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Formula:** `ended_at - started_at`.
 
@@ -586,7 +588,7 @@ durate greșite.
 
 ## STAT-04 --- Definirea timpului efectiv de deplasare
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Descriere:** Definește o regulă pentru a determina când vehiculul se
 deplasează și când staționează.
@@ -597,7 +599,7 @@ constante. - Rezultatul este testat pe exemple.
 
 ## STAT-05 --- Calcularea timpului de staționare
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Descriere:** Calculează timpul în care vehiculul este considerat
 staționat.
@@ -608,7 +610,7 @@ staționare.
 
 ## STAT-06 --- Calcularea vitezei medii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Calculează viteza medie conform definiției stabilite cu
 beneficiarul.
@@ -621,7 +623,7 @@ cu durată zero este tratat. - Unitatea este clară, de exemplu km/h.
 
 ## STAT-07 --- Calcularea vitezei maxime
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Determină cea mai mare viteză validă din punctele
 acceptate.
@@ -633,7 +635,7 @@ diferite.
 
 ## STAT-08 --- Teste pentru calcule
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Cazuri minime:** - zero puncte; - un singur punct; - două puncte
 identice; - două puncte cunoscute; - punct cu acuratețe slabă; - punct
@@ -646,7 +648,7 @@ necontrolate.
 
 ## STAT-09 --- Centralizarea statisticilor utilizatorului
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Descriere:** Calculează totalurile pentru toate călătoriile finalizate
 ale utilizatorului.
@@ -673,14 +675,14 @@ testate.
 
 ## API-01 --- Endpoint de health check
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Returnează un status simplu. - Nu expune
 date sensibile.
 
 ## API-02 --- Crearea unei călătorii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Creează în backend o călătorie sau înregistrează
 metadatele ei la sincronizare.
@@ -690,7 +692,7 @@ stabil. - Nu se creează duplicate la retry.
 
 ## API-03 --- Trimiterea punctelor GPS în batch
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Primește un lot de puncte GPS pentru o călătorie.
 
@@ -704,7 +706,7 @@ dublează punctele.
 
 ## API-04 --- Finalizarea unei călătorii
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Primește finalizarea și statisticile sau recalculează
 statisticile din punctele GPS.
@@ -714,7 +716,7 @@ Finalizarea repetată este tratată controlat. - Datele sunt consistente.
 
 ## API-05 --- Listarea călătoriilor
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Criterii de acceptare:** - Returnează doar călătoriile utilizatorului
 autentificat, dacă există autentificare. - Permite sortare după dată. -
@@ -722,7 +724,7 @@ Răspunsul nu include toate punctele GPS dacă nu sunt necesare.
 
 ## API-06 --- Detaliile unei călătorii
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Criterii de acceptare:** - Returnează statisticile și metadatele
 călătoriei. - Poate returna punctele GPS printr-o cerere separată sau
@@ -730,7 +732,7 @@ paginată dacă volumul este mare. - Verifică proprietarul călătoriei.
 
 ## API-07 --- Ștergerea unei călătorii
 
-**Prioritate:** P2 · **Status:** Todo
+**Prioritate:** P2 · **Status:** Done
 
 **Criterii de acceptare:** - Doar proprietarul sau rolul autorizat poate
 șterge. - Se aplică regula de ștergere pentru punctele GPS asociate. -
@@ -738,7 +740,7 @@ Rezultatul este confirmat clar.
 
 ## API-08 --- Gestionarea erorilor API
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 **Criterii de acceptare:** - Codurile HTTP sunt potrivite. - Erorile de
 validare sunt clare. - Nu sunt returnate stack trace-uri în producție.
@@ -749,7 +751,7 @@ validare sunt clare. - Nu sunt returnate stack trace-uri în producție.
 
 ## OFF-01 --- Configurarea SQLite
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Configurează baza de date locală pentru călătorii și
 punctele GPS.
@@ -759,7 +761,7 @@ după închiderea aplicației. - Schema locală este documentată.
 
 ## OFF-02 --- Salvarea locală a călătoriei
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Călătoria este salvată înainte de
 sincronizare. - Starea activă este recuperabilă după redeschiderea
@@ -767,7 +769,7 @@ aplicației.
 
 ## OFF-03 --- Salvarea locală a punctelor GPS
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Fiecare punct este asociat călătoriei
 locale. - Ordinea punctelor este păstrată. - Scrierea este suficient de
@@ -775,7 +777,7 @@ eficientă pentru tracking.
 
 ## OFF-04 --- Definirea stării de sincronizare
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Stări propuse:** pending, syncing, synced, failed.
 
@@ -785,7 +787,7 @@ după un eșec.
 
 ## OFF-05 --- Sincronizarea batch-urilor GPS
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Criterii de acceptare:** - Punctele sunt trimise în loturi. -
 Batch-urile au identificatori stabili. - Răspunsurile serverului
@@ -793,7 +795,7 @@ confirmă datele acceptate. - Loturile nereușite rămân în așteptare.
 
 ## OFF-06 --- Detectarea conexiunii și retry
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Aplicația poate continua tracking-ul fără
 internet. - Sincronizarea se reia după reconectare. - Retry-ul nu
@@ -802,7 +804,7 @@ retry.
 
 ## OFF-07 --- Prevenirea duplicatelor
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 **Descriere:** Folosește un ID generat local pentru fiecare punct sau un
 identificator de batch plus număr de secvență.
@@ -828,7 +830,7 @@ Politica este documentată.
 
 ## UI-01 --- Structura de navigare
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Descriere:** Creează navigarea minimă între Dashboard, Trip History și
 Profile/Settings dacă sunt necesare.
@@ -838,7 +840,7 @@ ecrane fără cale de întoarcere. - Structura este simplă.
 
 ## UI-02 --- Dashboard
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Elemente propuse:** - Buton Start Trip. - Indicator pentru călătorie
 activă. - Total kilometri. - Ultima călătorie. - Acces la istoric.
@@ -849,7 +851,7 @@ tracking-ului.
 
 ## UI-03 --- Ecran Active Trip
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Elemente propuse:** - Durata curentă. - Distanța curentă. - Viteza
 curentă. - Buton Stop Trip. - Indicator clar că tracking-ul este activ.
@@ -860,7 +862,7 @@ comunicate.
 
 ## UI-04 --- Ecran Trip History
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Elemente propuse:** - Data. - Durata. - Distanța. - Viteza medie.
 
@@ -869,7 +871,7 @@ călătorii este tratată. - Selectarea unei călătorii deschide detaliile.
 
 ## UI-05 --- Ecran Trip Details
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Elemente propuse:** - Data și intervalul orar. - Distanța. - Durata. -
 Viteza medie. - Viteza maximă. - Traseul pe hartă, dacă este inclus în
@@ -881,14 +883,17 @@ cronologic.
 
 ## UI-06 --- Ecran Settings/Profile
 
-**Prioritate:** P2 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Todo
 
-**Elemente posibile:** - Date de cont. - Preferințe. - Informații despre
-permisiuni. - Logout, dacă există autentificare.
+**Elemente propuse:** - Email și rolul contului. - Informații despre
+permisiuni. - Logout.
+
+**Criterii de acceptare:** - Contul curent este afișat clar. - Logout-ul
+confirmă acțiunea și nu șterge datele locale nesincronizate.
 
 ## UI-07 --- Stări Loading, Error și Empty
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Apelurile API afișează loading. - Erorile
 sunt explicate utilizatorului. - Listele goale au un mesaj potrivit. -
@@ -901,13 +906,26 @@ Nu se afișează ecrane albe la erori.
 **Criterii de acceptare:** - Ecranele principale rămân utilizabile pe
 dimensiuni Android diferite. - Conținutul nu este tăiat.
 
+## UI-09 --- Rafinarea vizuală a interfeței
+
+**Prioritate:** P1 · **Status:** Todo
+
+**Descriere:** Temă unitară, carduri și spațiere consecvente, ecrane de
+autentificare și administrare coerente.
+
+**Criterii de acceptare:** - Aceeași paletă, tipografie și stil de
+carduri pe toate ecranele. - Butoanele și câmpurile au stări clare
+(normal/loading/error). - Aspect corect pe tabletă și telefon. - Modul
+întunecat rămâne lizibil. - Nu se adaugă biblioteci doar pentru
+animații.
+
 ------------------------------------------------------------------------
 
 # EPIC 9 --- Hartă și vizualizarea traseului
 
 ## MAP-01 --- Alegerea și configurarea sursei de hartă
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Propunere:** OpenStreetMap prin `flutter_map`.
 
@@ -917,21 +935,21 @@ necesare sunt configurate în siguranță.
 
 ## MAP-02 --- Afișarea hărții
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Harta se încarcă. - Erorile de rețea sunt
 tratate. - Atribuirea sursei hărții este vizibilă.
 
 ## MAP-03 --- Afișarea poziției curente
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Poziția curentă este marcată. - Harta poate
 centra poziția. - Lipsa locației este tratată.
 
 ## MAP-04 --- Desenarea traseului în timpul călătoriei
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Punctele sunt desenate în ordinea
 colectării. - Traseul se actualizează fără reconstruiri excesive. -
@@ -939,14 +957,14 @@ Punctele invalide nu produc segmente aberante.
 
 ## MAP-05 --- Marcarea începutului și sfârșitului
 
-**Prioritate:** P2 · **Status:** Todo
+**Prioritate:** P2 · **Status:** In Progress
 
 **Criterii de acceptare:** - Start și finish sunt marcate distinct. -
 Marker-ele folosesc punctele valide corespunzătoare.
 
 ## MAP-06 --- Vizualizarea traseului istoric
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 **Criterii de acceptare:** - Traseul poate fi încărcat din datele
 salvate. - Harta ajustează zoom-ul pentru a include traseul. -
@@ -956,65 +974,96 @@ Călătoriile fără coordonate sunt tratate.
 
 # EPIC 10 --- Autentificare și autorizare
 
-> Dacă aplicația va fi utilizată de mai mulți utilizatori, acest epic
-> devine obligatoriu înainte de accesul la date în producție. Dacă este
-> o aplicație strict locală pentru un singur utilizator, simplifică
-> soluția după confirmarea beneficiarului.
+> Multi-user este confirmat (REQ-01): rolurile `user` și `admin`,
+> înregistrare liberă, primul cont devine admin. Endpointurile private
+> cer token JWT, iar datele sunt izolate în backend.
 
 ## AUTH-01 --- Înregistrarea utilizatorului
 
-**Prioritate:** P1 · **Status:** Blocked --- confirmarea utilizatorilor
+**Prioritate:** P0 · **Status:** Todo
 
-**Criterii de acceptare:** - Email-ul este validat. - Parola este
-hash-uită. - Email-ul duplicat este respins.
+**Criterii de acceptare:** - Email-ul este validat și unic. - Parola
+este hash-uită, niciodată stocată în clar. - Email-ul duplicat este
+respins cu un mesaj clar.
 
 ## AUTH-02 --- Autentificarea utilizatorului
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P0 · **Status:** Todo
 
-**Criterii de acceptare:** - Credentialele corecte permit
-autentificarea. - Credentialele greșite sunt respinse. - Răspunsurile nu
-divulgă dacă o parolă sau un email este corect separat, dacă politica de
-securitate cere evitarea acestui lucru.
+**Criterii de acceptare:** - Credențialele corecte permit
+autentificarea. - Credențialele greșite sunt respinse. - Răspunsul nu
+divulgă dacă email-ul sau parola este greșită.
 
 ## AUTH-03 --- JWT
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P0 · **Status:** Todo
 
 **Criterii de acceptare:** - Tokenul are expirare. - Semnarea folosește
-secret din configurație. - Tokenurile invalide/expirate sunt respinse.
+un secret din configurație, fără valoare implicită în cod. -
+Tokenurile invalide sau expirate sunt respinse cu 401.
 
 ## AUTH-04 --- Protejarea endpointurilor
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P0 · **Status:** Todo
 
-**Criterii de acceptare:** - Endpointurile private cer autentificare. -
-Backend-ul identifică utilizatorul din token. - Nu se bazează pe
-`user_id` trimis liber de client pentru autorizare.
+**Criterii de acceptare:** - Endpointurile private cer autentificare
+(excepție: health, register, login). - Backend-ul identifică
+utilizatorul din token. - Nu se bazează pe `user_id` trimis liber de
+client pentru autorizare.
 
 ## AUTH-05 --- Izolarea datelor utilizatorilor
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P0 · **Status:** Todo
 
 **Criterii de acceptare:** - Utilizatorul A nu poate citi, modifica sau
 șterge călătoriile utilizatorului B. - Verificarea este realizată în
-backend. - Există teste pentru acces neautorizat.
+backend. - Există teste pentru acces neautorizat. - Adminul are acces
+explicit doar prin endpointurile de administrare.
 
 ## AUTH-06 --- Stocarea tokenului în Flutter
 
-**Prioritate:** P1 · **Status:** Blocked
+**Prioritate:** P0 · **Status:** Todo
 
-**Criterii de acceptare:** - Tokenul nu este stocat în clar în
-preferințe obișnuite. - Tokenul este transmis prin HTTPS în producție. -
-Logout-ul elimină tokenul local.
+**Criterii de acceptare:** - Tokenul este stocat cu
+`flutter_secure_storage`, nu în preferințe obișnuite. - Tokenul este
+trimis prin HTTPS în producție. - Logout-ul elimină tokenul local.
 
 ## AUTH-07 --- Logout
 
-**Prioritate:** P2 · **Status:** Blocked
+**Prioritate:** P1 · **Status:** Todo
 
 **Criterii de acceptare:** - Sesiunea locală este închisă. - Datele
-locale nesincronizate nu sunt șterse accidental. - Comportamentul este
+locale nesincronizate nu sunt șterse accidental. - O călătorie activă
+este oprită fără a fi pierdută și poate fi reluată după autentificare. -
+Comportamentul este documentat.
+
+## AUTH-08 --- Roluri `user` și `admin`
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Rolul este stocat în baza de date și
+validat prin constrângere. - Rolul este citit din backend, nu din
+client. - Există o dependență `require_admin` pentru endpointurile
+administrative. - Rolul apare în răspunsul de autentificare.
+
+## AUTH-09 --- Bootstrap pentru primul admin
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Primul cont înregistrat primește automat
+rolul `admin`. - Conturile următoare primesc rolul `user`. - Logica nu
+se bazează pe utilizatori vechi fără parolă. - Comportamentul este
 documentat.
+
+## AUTH-10 --- Ecranele de autentificare în Flutter
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Ecrane de login și înregistrare cu
+validare și stări loading/error. - Sesiunea este restaurată la pornire
+prin `/auth/me`. - Un token invalid duce la ecranul de login, fără ecran
+alb. - După autentificare, călătoriile locale sunt filtrate după
+proprietar.
 
 ------------------------------------------------------------------------
 
@@ -1082,20 +1131,20 @@ consistente cu ecranele aplicației.
 
 ## TEST-01 --- Teste unitare pentru calcule
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 Acoperă Haversine, distanță totală, durate, viteze și filtrarea
 punctelor.
 
 ## TEST-02 --- Teste pentru modelele și accesul la DB
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 Verifică relațiile, constrângerile și operațiile de bază.
 
 ## TEST-03 --- Teste pentru endpointuri
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** Done
 
 Verifică răspunsuri valide, date invalide, lipsa resurselor și erori.
 
@@ -1121,7 +1170,7 @@ punctelor.
 
 ## TEST-07 --- Testare sincronizare repetată
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 Simulează timeout și retrimiterea aceluiași batch.
 
@@ -1133,7 +1182,7 @@ Verifică recuperarea călătoriei după închidere neașteptată.
 
 ## TEST-09 --- Testare cazuri-limită
 
-**Prioritate:** P1 · **Status:** Todo
+**Prioritate:** P1 · **Status:** In Progress
 
 Exemple: - GPS dezactivat în timpul călătoriei. - Permisiune revocată. -
 Baterie redusă. - Telefon fără internet. - Lipsă puncte GPS pentru o
@@ -1159,7 +1208,7 @@ Verifică stocarea, sincronizarea și afișarea unui număr mare de puncte.
 
 ## SEC-01 --- Protejarea secretelor
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** Done
 
 -   Nu comite `.env`.
 -   Nu include parole în cod.
@@ -1168,7 +1217,7 @@ Verifică stocarea, sincronizarea și afișarea unui număr mare de puncte.
 
 ## SEC-02 --- HTTPS în producție
 
-**Prioritate:** P0 înainte de lansare · **Status:** Todo
+**Prioritate:** P0 înainte de lansare · **Status:** In Progress
 
 **Criterii de acceptare:** - API-ul de producție folosește HTTPS. -
 Aplicația nu trimite tokenuri prin HTTP neprotejat.
@@ -1183,7 +1232,7 @@ coordonate sau tokenuri fără motiv.
 
 ## SEC-04 --- Informarea utilizatorului despre tracking
 
-**Prioritate:** P0 · **Status:** Todo
+**Prioritate:** P0 · **Status:** In Progress
 
 **Criterii de acceptare:** - Utilizatorul știe când tracking-ul este
 activ. - Scopul permisiunii GPS este explicat. - Există o metodă clară
@@ -1249,6 +1298,38 @@ călătorii; - limitările tracking-ului; - procedura de sincronizare.
 
 ------------------------------------------------------------------------
 
+# EPIC 15 --- Administrare (rol admin)
+
+## ADMIN-01 --- Endpoint admin pentru toate călătoriile
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Endpointul este accesibil doar rolului
+`admin`; un utilizator normal primește 403. - Returnează călătoriile
+tuturor utilizatorilor, inclusiv email-ul proprietarului. - Rezultatele
+sunt sortate după data începerii. - Există teste pentru admin și pentru
+accesul interzis.
+
+## ADMIN-02 --- Ecranul Admin în Flutter
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Opțiunea Admin apare doar pentru rolul
+`admin`. - Lista arată toate călătoriile, cu proprietarul fiecăreia. -
+Sunt tratate stările loading, error și listă goală. - Lista poate fi
+reîmprospătată. - Călătoriile adminului rămân disponibile în Istoric, ca
+la un utilizator normal.
+
+## ADMIN-03 --- Detaliile unei călătorii din pagina admin
+
+**Prioritate:** P0 · **Status:** Todo
+
+**Criterii de acceptare:** - Punctele GPS ale călătoriei selectate sunt
+încărcate din backend. - Statisticile și harta corespund călătoriei
+selectate. - Erorile de rețea sunt afișate controlat.
+
+------------------------------------------------------------------------
+
 # Ordinea recomandată de implementare
 
 1.  SET-01 până la SET-07 --- setup.
@@ -1260,10 +1341,13 @@ călătorii; - limitările tracking-ului; - procedura de sincronizare.
 7.  API-01 până la API-08 --- API pentru călătorii.
 8.  UI-01 până la UI-08 --- interfață.
 9.  MAP-01 până la MAP-06 --- hartă.
-10. AUTH-01 până la AUTH-07 --- autentificare, dacă este necesară.
-11. TEST-01 până la TEST-11 --- verificări complete.
-12. SEC și DEP --- pregătire pentru lansare.
-13. Epic-urile opționale numai după confirmarea beneficiarului.
+10. AUTH-08, AUTH-09, AUTH-01 până la AUTH-07, AUTH-10 ---
+    autentificare multi-user.
+11. ADMIN-01 până la ADMIN-03 --- administrare.
+12. UI-09 --- rafinarea vizuală, după ce fluxurile sunt stabile.
+13. TEST-01 până la TEST-11 --- verificări complete.
+14. SEC și DEP --- pregătire pentru lansare.
+15. Epic-urile opționale numai după confirmarea beneficiarului.
 
 **Notă despre ordine:** Unele tichete pot fi realizate în paralel după
 stabilirea contractelor dintre componente, dar GPS Proof of Concept
@@ -1296,3 +1380,9 @@ secrete în repository.
 10. Nu implementa funcționalități opționale fără confirmarea
     beneficiarului.
 11. Respectă KISS și evită arhitectura excesivă.
+12. Aplicația este multi-user, cu rolurile `user` și `admin`.
+13. Înregistrarea este liberă din aplicație; primul cont devine admin.
+14. Adminul vede propriile călătorii ca un user normal și are o pagină
+    separată cu toate călătoriile, etichetate cu proprietarul.
+15. Fiecare tichet se lucrează pe branch separat și se merge în `main`
+    numai după ce testele relevante trec.
