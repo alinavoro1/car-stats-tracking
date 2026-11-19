@@ -1,0 +1,14 @@
+.git/
+.claude/
+mobile/
+documentation/
+*.md
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+backend/.env.*
+backend/tests/
+backend/*.db
+backend/*.db-journal
+car-tracker-download/
