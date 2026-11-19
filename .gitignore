@@ -23,6 +23,8 @@ mobile/car_tracker_app/build/
 mobile/car_tracker_app/.flutter-plugins
 mobile/car_tracker_app/.flutter-plugins-dependencies
 mobile/car_tracker_app/.packages
+mobile/car_tracker_app/.hot_reload_cmd
+mobile/car_tracker_app/flutter_run.log
 mobile/car_tracker_app/android/local.properties
 mobile/car_tracker_app/android/.gradle/
 mobile/car_tracker_app/android/app/debug/
