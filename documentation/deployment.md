@@ -57,6 +57,13 @@ Sunt necesare doar:
 
 Migrațiile Alembic rulează automat la pornirea containerului.
 
+## Instanța de test curentă
+
+- API: <https://car-stats-tracking-production.up.railway.app>
+- Pagina de instalare: <https://car-stats-tracking-production.up.railway.app/download>
+- Hosting: Railway, plan trial. Nu este un mediu de producție și poate
+  fi oprit după testare.
+
 ## După deploy
 
 1. Backend-ul are baza de date goală; **primul cont înregistrat devine
