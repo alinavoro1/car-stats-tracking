@@ -42,94 +42,139 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final user = auth.user;
     final active = controller.activeTrip;
+    final isAdmin = user?.isAdmin == true;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Cont')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            margin: EdgeInsets.zero,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      scheme.primary,
+                      Color.lerp(scheme.primary, scheme.tertiary, 0.35)!,
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user?.email ?? '—',
-                    style: theme.textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Chip(
-                    avatar: Icon(
-                      user?.isAdmin == true
-                          ? Icons.admin_panel_settings
-                          : Icons.person_outline,
-                      size: 18,
-                    ),
-                    label: Text(
-                      user?.isAdmin == true ? 'Administrator' : 'Utilizator',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (active != null) ...[
-            const SizedBox(height: 12),
-            Card(
-              margin: EdgeInsets.zero,
-              color: theme.colorScheme.surfaceContainerHighest,
-              child: Padding(
-                padding: const EdgeInsets.all(14),
-                child: Row(
+                ),
+                child: Column(
                   children: [
-                    const Icon(Icons.route),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Ai o călătorie activă. După o nouă autentificare '
-                        'cu acest cont o poți continua.',
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor:
+                          scheme.onPrimary.withValues(alpha: 0.18),
+                      child: Icon(
+                        Icons.person,
+                        size: 44,
+                        color: scheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      user?.email ?? '—',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: scheme.onPrimary.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isAdmin
+                                ? Icons.admin_panel_settings
+                                : Icons.person_outline,
+                            size: 18,
+                            color: scheme.onPrimary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            isAdmin ? 'Administrator' : 'Utilizator',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: scheme.onPrimary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-          const SizedBox(height: 12),
-          Card(
-            margin: EdgeInsets.zero,
-            child: const ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('Datele rămân pe dispozitiv'),
-              subtitle: Text(
-                'Călătoriile nesincronizate nu sunt șterse la logout.',
+              if (active != null) ...[
+                const SizedBox(height: 12),
+                Card(
+                  color: scheme.tertiaryContainer,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.route,
+                          color: scheme.onTertiaryContainer,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Ai o călătorie activă. După o nouă '
+                            'autentificare cu acest cont o poți continua.',
+                            style: TextStyle(
+                              color: scheme.onTertiaryContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 12),
+              Card(
+                child: const ListTile(
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  leading: Icon(Icons.info_outline),
+                  title: Text('Datele rămân pe dispozitiv'),
+                  subtitle: Text(
+                    'Călătoriile nesincronizate nu sunt șterse la logout.',
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 24),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: scheme.error,
+                ),
+                onPressed: () => _logout(context),
+                icon: const Icon(Icons.logout),
+                label: const Text('Ieși din cont'),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: theme.colorScheme.error,
-              minimumSize: const Size.fromHeight(50),
-            ),
-            onPressed: () => _logout(context),
-            icon: const Icon(Icons.logout),
-            label: const Text('Ieși din cont'),
-          ),
-        ],
+        ),
       ),
     );
   }

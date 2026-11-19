@@ -117,6 +117,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
@@ -133,6 +134,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         final validPoints = analysis?.validPoints ?? const [];
         final lastPoint = validPoints.isEmpty ? null : validPoints.last;
         final speed = lastPoint?.speedMps;
+        final active = widget.controller.isTracking;
 
         return Scaffold(
           appBar: AppBar(
@@ -153,136 +155,220 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
               ),
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Card(
-                color: widget.controller.isTracking
-                    ? theme.colorScheme.primaryContainer
-                    : theme.colorScheme.surfaceContainerHighest,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.fiber_manual_record,
-                        color: widget.controller.isTracking
-                            ? Colors.green
-                            : Colors.orange,
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: active
+                            ? [
+                                scheme.primary,
+                                Color.lerp(
+                                  scheme.primary,
+                                  scheme.tertiary,
+                                  0.3,
+                                )!,
+                              ]
+                            : [
+                                scheme.surfaceContainerHighest,
+                                scheme.surfaceContainerHighest,
+                              ],
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.controller.isTracking
-                              ? 'Tracking activ'
-                              : 'Tracking oprit',
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (!widget.controller.isTracking) ...[
-                const SizedBox(height: 12),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    child: Row(
                       children: [
-                        const Text(
-                          'Înregistrarea GPS nu rulează. Poți continua '
-                          'călătoria sau o poți finaliza.',
+                        Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: active
+                                ? Colors.lightGreenAccent
+                                : Colors.orangeAccent,
+                            boxShadow: active
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.lightGreenAccent
+                                          .withValues(alpha: 0.6),
+                                      blurRadius: 12,
+                                      spreadRadius: 2,
+                                    ),
+                                  ]
+                                : null,
+                          ),
                         ),
-                        const SizedBox(height: 10),
-                        FilledButton.icon(
-                          onPressed: _resume,
-                          icon: const Icon(Icons.play_arrow),
-                          label: const Text('Continuă înregistrarea'),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                active ? 'Tracking activ' : 'Tracking oprit',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: active
+                                      ? scheme.onPrimary
+                                      : scheme.onSurface,
+                                ),
+                              ),
+                              Text(
+                                active
+                                    ? 'Notificarea persistentă este vizibilă.'
+                                    : 'Poți relua înregistrarea.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: active
+                                      ? scheme.onPrimary.withValues(alpha: 0.8)
+                                      : scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
-              if (widget.controller.gpsError != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  widget.controller.gpsError!,
-                  style: TextStyle(color: theme.colorScheme.error),
-                ),
-              ],
-              const SizedBox(height: 24),
-              Center(
-                child: Text(
-                  formatClock(elapsed),
-                  style: theme.textTheme.displaySmall?.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
+                  if (!active) ...[
+                    const SizedBox(height: 12),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Înregistrarea GPS nu rulează. Poți continua '
+                              'călătoria sau o poți finaliza.',
+                            ),
+                            const SizedBox(height: 12),
+                            FilledButton.icon(
+                              onPressed: _resume,
+                              icon: const Icon(Icons.play_arrow),
+                              label: const Text('Continuă înregistrarea'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (widget.controller.gpsError != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.controller.gpsError!,
+                      style: TextStyle(color: scheme.error),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  Column(
+                    children: [
+                      Text(
+                        formatClock(elapsed),
+                        style: theme.textTheme.displaySmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1,
+                          fontFeatures: const [
+                            FontFeature.tabularFigures(),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'durata călătoriei',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Center(
-                child: Text('Durată', style: theme.textTheme.bodyMedium),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: _LiveValue(
-                      label: 'Distanță',
-                      value: formatDistance(analysis?.distanceMeters ?? 0),
+                  const SizedBox(height: 24),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _LiveValue(
+                                  label: 'Distanță',
+                                  value: formatDistance(
+                                    analysis?.distanceMeters ?? 0,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: _LiveValue(
+                                  label: 'Viteză curentă',
+                                  value: speed == null
+                                      ? '—'
+                                      : formatSpeed(speed),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Divider(height: 1),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _LiveValue(
+                                  label: 'Viteză maximă',
+                                  value: formatSpeed(
+                                    analysis?.maxSpeedMps ?? 0,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: _LiveValue(
+                                  label: 'Puncte GPS',
+                                  value:
+                                      '${widget.controller.activePoints.length}',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Expanded(
-                    child: _LiveValue(
-                      label: 'Viteză curentă',
-                      value: speed == null ? '—' : formatSpeed(speed),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    onPressed: _stopping ? null : _stopTrip,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: scheme.error,
+                      foregroundColor: scheme.onError,
+                    ),
+                    icon: _stopping
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.stop_rounded),
+                    label: Text(
+                      _stopping ? 'Se oprește...' : 'Oprește călătoria',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Înregistrarea este vizibilă prin notificarea '
+                    'persistentă și poate fi oprită oricând.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _LiveValue(
-                      label: 'Puncte GPS',
-                      value: '${widget.controller.activePoints.length}',
-                    ),
-                  ),
-                  Expanded(
-                    child: _LiveValue(
-                      label: 'Viteză maximă',
-                      value: formatSpeed(analysis?.maxSpeedMps ?? 0),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: _stopping ? null : _stopTrip,
-                style: FilledButton.styleFrom(
-                  backgroundColor: theme.colorScheme.error,
-                  foregroundColor: theme.colorScheme.onError,
-                ),
-                icon: _stopping
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.stop),
-                label: Text(_stopping ? 'Se oprește...' : 'Oprește călătoria'),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Înregistrarea este vizibilă prin notificarea persistentă și '
-                'poate fi oprită oricând.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall,
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -301,9 +387,19 @@ class _LiveValue extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Text(value, style: theme.textTheme.headlineSmall),
+        Text(
+          value,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text(label, style: theme.textTheme.bodySmall),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
     );
   }

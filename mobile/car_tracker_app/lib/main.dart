@@ -10,6 +10,7 @@ import 'screens/admin_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/history_screen.dart';
+import 'theme.dart';
 import 'token_storage.dart';
 import 'trip_controller.dart';
 
@@ -39,10 +40,9 @@ class CarTrackerApp extends StatelessWidget {
     return MaterialApp(
       title: 'Car Tracker',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1B5E20)),
-        useMaterial3: true,
-      ),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: ThemeMode.system,
       home: _AuthGate(database: database, api: api, auth: auth),
     );
   }
@@ -171,7 +171,10 @@ class _HomeShellState extends State<HomeShell> {
     final user = widget.auth.user;
     final isAdmin = user?.isAdmin ?? false;
     final screens = [
-      DashboardScreen(controller: widget.controller),
+      DashboardScreen(
+        controller: widget.controller,
+        userEmail: user?.email ?? '',
+      ),
       HistoryScreen(controller: widget.controller),
       if (isAdmin)
         AdminScreen(
