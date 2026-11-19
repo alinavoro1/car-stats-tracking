@@ -87,12 +87,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(
-                            Icons.directions_car_filled,
-                            size: 56,
-                            color: theme.colorScheme.primary,
+                          Center(
+                            child: Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primaryContainer,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.directions_car_filled,
+                                size: 48,
+                                color: theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           Text(
                             'Car Tracker',
                             textAlign: TextAlign.center,

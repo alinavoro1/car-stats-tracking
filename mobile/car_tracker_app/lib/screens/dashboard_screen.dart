@@ -9,9 +9,14 @@ import 'active_trip_screen.dart';
 import 'trip_details_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key, required this.controller});
+  const DashboardScreen({
+    super.key,
+    required this.controller,
+    required this.userEmail,
+  });
 
   final TripController controller;
+  final String userEmail;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -57,7 +62,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               child: Text(
-                error.openLocationSettings ? 'Setări locație' : 'Setări aplicație',
+                error.openLocationSettings
+                    ? 'Setări locație'
+                    : 'Setări aplicație',
               ),
             ),
         ],
@@ -136,7 +143,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Car Tracker')),
+      appBar: AppBar(
+        title: const Text('Car Tracker'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: CircleAvatar(
+              backgroundColor: theme.colorScheme.primaryContainer,
+              child: Icon(
+                Icons.directions_car,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: widget.controller,
         builder: (context, _) {
@@ -148,175 +169,309 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           return RefreshIndicator(
             onRefresh: controller.refreshHistory,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (activeTrip != null) ...[
-                  Card(
-                    color: theme.colorScheme.primaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 760),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  children: [
+                    _hero(theme, controller, activeTrip),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: StatCard(
+                            label: 'Călătorii finalizate',
+                            value: '${controller.completedTrips.length}',
+                            icon: Icons.check_circle_outline,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: StatCard(
+                            label: 'Ultima călătorie',
+                            value: lastTrip == null
+                                ? '—'
+                                : formatDateTime(lastTrip.startedAt)
+                                    .split(' ')
+                                    .first,
+                            icon: Icons.event_outlined,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (lastTrip != null) ...[
+                      const SizedBox(height: 12),
+                      Card(
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                theme.colorScheme.secondaryContainer,
+                            child: Icon(
+                              Icons.route,
+                              color: theme.colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                          title: const Text('Ultima călătorie'),
+                          subtitle: Text(
+                            '${formatDateTime(lastTrip.startedAt)} • '
+                            '${formatDistance(lastTrip.distanceMeters)} • '
+                            '${formatDuration(lastTrip.totalDurationSeconds)}',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _openDetails(lastTrip),
+                        ),
+                      ),
+                    ],
+                    if (unsynced.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Card(
+                        color: theme.colorScheme.tertiaryContainer,
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.cloud_off,
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
+                          title: Text(
+                            '${unsynced.length} călătorii nesincronizate',
+                            style: TextStyle(
+                              color: theme.colorScheme.onTertiaryContainer,
+                            ),
+                          ),
+                          trailing: TextButton(
+                            onPressed: _syncNow,
+                            child: const Text('Sincronizează'),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (controller.gpsError != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        controller.gpsError!,
+                        style: TextStyle(color: theme.colorScheme.error),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: ExpansionTile(
+                        leading: const Icon(Icons.tune),
+                        title: const Text('Diagnostic'),
+                        subtitle: const Text(
+                          'Conexiune server și poziția GPS',
+                        ),
+                        childrenPadding: const EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          16,
+                        ),
+                        expandedCrossAxisAlignment:
+                            CrossAxisAlignment.stretch,
                         children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.fiber_manual_record,
-                                color: controller.isTracking
-                                    ? Colors.green
-                                    : Colors.orange,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  controller.isTracking
-                                      ? 'Tracking activ'
-                                      : 'Călătorie activă (GPS oprit)',
-                                  style: theme.textTheme.titleMedium,
+                          OutlinedButton.icon(
+                            onPressed:
+                                _checkingBackend ? null : _checkBackend,
+                            icon: _checkingBackend
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.cloud_sync),
+                            label: const Text(
+                              'Verifică conexiunea la server',
+                            ),
+                          ),
+                          if (_backendMessage != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Text(
+                                _backendMessage!,
+                                style: TextStyle(
+                                  color: _backendOk == true
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.error,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Pornită la ${formatDateTime(activeTrip.startedAt)}',
+                          OutlinedButton.icon(
+                            onPressed: _checkingGps ? null : _checkGps,
+                            icon: _checkingGps
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.gps_fixed),
+                            label: const Text('Verifică GPS'),
                           ),
-                          const SizedBox(height: 12),
-                          FilledButton.tonalIcon(
-                            onPressed: _openActiveTrip,
-                            icon: const Icon(Icons.open_in_new),
-                            label: const Text('Deschide călătoria'),
-                          ),
+                          if (sample != null) ...[
+                            const SizedBox(height: 12),
+                            _GpsSampleCard(position: sample),
+                          ],
                         ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                SizedBox(
-                  height: 56,
-                  child: FilledButton.icon(
-                    onPressed: activeTrip != null || _starting ? null : _startTrip,
-                    icon: _starting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.play_arrow),
-                    label: Text(
-                      _starting ? 'Se pornește...' : 'Pornește călătoria',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatCard(
-                        label: 'Distanță totală',
-                        value: formatDistance(controller.totalDistanceMeters),
-                        icon: Icons.route,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: StatCard(
-                        label: 'Călătorii finalizate',
-                        value: '${controller.completedTrips.length}',
-                        icon: Icons.check_circle_outline,
                       ),
                     ),
                   ],
                 ),
-                if (lastTrip != null) ...[
-                  const SizedBox(height: 16),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    child: ListTile(
-                      leading: const Icon(Icons.history),
-                      title: const Text('Ultima călătorie'),
-                      subtitle: Text(
-                        '${formatDateTime(lastTrip.startedAt)} • '
-                        '${formatDistance(lastTrip.distanceMeters)} • '
-                        '${formatDuration(lastTrip.totalDurationSeconds)}',
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _openDetails(lastTrip),
-                    ),
-                  ),
-                ],
-                if (unsynced.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  Card(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: ListTile(
-                      leading: const Icon(Icons.cloud_off),
-                      title: Text(
-                        '${unsynced.length} călătorii nesincronizate',
-                      ),
-                      trailing: TextButton(
-                        onPressed: _syncNow,
-                        child: const Text('Sincronizează'),
-                      ),
-                    ),
-                  ),
-                ],
-                if (controller.gpsError != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    controller.gpsError!,
-                    style: TextStyle(color: theme.colorScheme.error),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                Text('Diagnostic', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _checkingBackend ? null : _checkBackend,
-                  icon: _checkingBackend
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.cloud_sync),
-                  label: const Text('Verifică conexiunea la server'),
-                ),
-                if (_backendMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      _backendMessage!,
-                      style: TextStyle(
-                        color: _backendOk == true
-                            ? Colors.green.shade700
-                            : theme.colorScheme.error,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _checkingGps ? null : _checkGps,
-                  icon: _checkingGps
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.gps_fixed),
-                  label: const Text('Verifică GPS'),
-                ),
-                if (sample != null) ...[
-                  const SizedBox(height: 8),
-                  _GpsSampleCard(position: sample),
-                ],
-              ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _hero(
+    ThemeData theme,
+    TripController controller,
+    Trip? activeTrip,
+  ) {
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.primary,
+            Color.lerp(scheme.primary, scheme.tertiary, 0.35)!,
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: 0.28),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: scheme.onPrimary.withValues(alpha: 0.16),
+                child: Icon(Icons.directions_car, color: scheme.onPrimary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bun venit,',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onPrimary.withValues(alpha: 0.75),
+                      ),
+                    ),
+                    Text(
+                      widget.userEmail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: scheme.onPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (activeTrip != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: scheme.onPrimary.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 9,
+                        color: controller.isTracking
+                            ? Colors.lightGreenAccent
+                            : Colors.orangeAccent,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        controller.isTracking ? 'activ' : 'pauză',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.onPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            formatDistance(controller.totalDistanceMeters),
+            style: theme.textTheme.displaySmall?.copyWith(
+              color: scheme.onPrimary,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1,
+            ),
+          ),
+          Text(
+            'distanță totală',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: scheme.onPrimary.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.onPrimary,
+                foregroundColor: scheme.primary,
+              ),
+              onPressed: activeTrip != null
+                  ? _openActiveTrip
+                  : (_starting ? null : _startTrip),
+              icon: activeTrip != null
+                  ? const Icon(Icons.navigation_rounded)
+                  : (_starting
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: scheme.primary,
+                          ),
+                        )
+                      : const Icon(Icons.play_arrow_rounded)),
+              label: Text(
+                activeTrip != null
+                    ? 'Deschide călătoria activă'
+                    : (_starting
+                        ? 'Se pornește...'
+                        : 'Pornește călătoria'),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -329,33 +484,36 @@ class _GpsSampleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final speed = position.hasSpeed
         ? '${(position.speed * 3.6).toStringAsFixed(0)} km/h'
         : 'indisponibilă';
-    final altitude =
-        position.hasAltitude ? '${position.altitude.toStringAsFixed(0)} m' : '—';
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Poziție curentă',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${position.latitude.toStringAsFixed(6)}, '
-              '${position.longitude.toStringAsFixed(6)}',
-            ),
-            Text('Acuratețe: ${position.accuracy.toStringAsFixed(1)} m'),
-            Text('Viteză GPS: $speed'),
-            Text('Altitudine: $altitude'),
-            Text('Timp: ${formatDateTime(position.timestamp)}'),
-          ],
+    final altitude = position.hasAltitude
+        ? '${position.altitude.toStringAsFixed(0)} m'
+        : '—';
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(
+          alpha: 0.45,
         ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Poziție curentă', style: theme.textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Text(
+            '${position.latitude.toStringAsFixed(6)}, '
+            '${position.longitude.toStringAsFixed(6)}',
+          ),
+          Text('Acuratețe: ${position.accuracy.toStringAsFixed(1)} m'),
+          Text('Viteză GPS: $speed'),
+          Text('Altitudine: $altitude'),
+          Text('Timp: ${formatDateTime(position.timestamp)}'),
+        ],
       ),
     );
   }

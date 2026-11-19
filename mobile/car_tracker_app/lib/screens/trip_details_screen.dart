@@ -75,8 +75,14 @@ class _TripDetailsScreenState extends State<TripDetailsScreen> {
           final analysis = data.analysis;
           final points = analysis.validPoints;
 
+          final width = MediaQuery.sizeOf(context).width;
+          final horizontalPadding = width > 860 ? (width - 820) / 2 : 16.0;
+
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: 16,
+            ),
             children: [
               Card(
                 margin: EdgeInsets.zero,
