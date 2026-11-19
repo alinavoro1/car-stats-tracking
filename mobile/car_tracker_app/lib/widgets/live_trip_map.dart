@@ -126,6 +126,13 @@ class _LiveTripMapState extends State<LiveTripMap> {
                     ),
                   MarkerLayer(
                     markers: [
+                      if (coordinates.length > 1)
+                        Marker(
+                          point: coordinates.first,
+                          width: 40,
+                          height: 40,
+                          child: const _StartMarker(),
+                        ),
                       Marker(
                         point: coordinates.last,
                         width: 44,
@@ -162,6 +169,31 @@ class _LiveTripMapState extends State<LiveTripMap> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StartMarker extends StatelessWidget {
+  const _StartMarker();
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Start',
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF2E7D32),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: const Icon(Icons.flag_rounded, color: Colors.white, size: 18),
       ),
     );
   }
