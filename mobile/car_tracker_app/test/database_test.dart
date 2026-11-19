@@ -8,6 +8,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 Trip trip({
   String id = 'trip-1',
+  String ownerEmail = 'user@example.com',
   TripStatus status = TripStatus.active,
   SyncState syncState = SyncState.pending,
   DateTime? startedAt,
@@ -16,6 +17,7 @@ Trip trip({
   return Trip(
     id: id,
     startedAt: startedAt ?? DateTime.utc(2026, 1, 1, 12),
+    ownerEmail: ownerEmail,
     endedAt: endedAt,
     status: status,
     distanceMeters: 1000,
@@ -56,7 +58,7 @@ void main() {
 
   test('călătoria activă este salvată și recuperată', () async {
     await database.insertTrip(trip());
-    final active = await database.getActiveTrip();
+    final active = await database.getActiveTrip('user@example.com');
     expect(active, isNotNull);
     expect(active!.id, 'trip-1');
     expect(active.status, TripStatus.active);
@@ -102,8 +104,35 @@ void main() {
       ),
     );
 
-    final pending = await database.getPendingSyncTrips();
+    final pending =
+        await database.getPendingSyncTrips('user@example.com');
     expect(pending.map((item) => item.id), ['pending']);
+  });
+
+  test('călătoriile vechi sunt atribuite primului cont', () async {
+    await database.insertTrip(trip(ownerEmail: ''));
+
+    expect(await database.getTrips('user@example.com'), isEmpty);
+
+    await database.claimUnownedTrips('user@example.com');
+
+    final claimed = await database.getTrips('user@example.com');
+    expect(claimed.map((item) => item.id), ['trip-1']);
+    expect(await database.getTrips('other@example.com'), isEmpty);
+  });
+
+  test('fiecare utilizator vede doar călătoriile proprii', () async {
+    await database.insertTrip(trip(id: 'a', ownerEmail: 'a@example.com'));
+    await database.insertTrip(trip(id: 'b', ownerEmail: 'b@example.com'));
+
+    expect(
+      (await database.getTrips('a@example.com')).map((item) => item.id),
+      ['a'],
+    );
+    expect(
+      (await database.getTrips('b@example.com')).map((item) => item.id),
+      ['b'],
+    );
   });
 
   test('starea de sincronizare și eroarea sunt persistate', () async {
